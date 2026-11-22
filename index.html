@@ -1,0 +1,1842 @@
+```html
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IBU Cookbook — Кулинарная книга биатлонистов</title>
+    <!-- Подключение Tailwind CSS через открытое CDN-зеркало (работает без VPN) -->
+    <script src="https://unpkg.com/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <!-- Системные шрифты высокой четкости (не требуют обращения к серверам Google) -->
+    <style>
+        :root {
+            --font-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+        }
+        body {
+            font-family: var(--font-sans);
+        }
+        .font-mono {
+            font-family: var(--font-mono);
+        }
+    </style>
+    <script>
+        // Резервная конфигурация кастомных цветов IBU для совместимости
+        window.tailwind = window.tailwind || {};
+        window.tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        ibu: {
+                            navy: '#0B253A',
+                            slate: '#143854',
+                            lime: '#A3D55D',
+                            pine: '#1E6B52',
+                            snow: '#F4F7FA',
+                            ice: '#E2EBF3',
+                            gold: '#F59E0B',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Базовые классы фирменных цветов IBU на случай работы без интернета или кэша */
+        .bg-ibu-navy { background-color: #0B253A !important; }
+        .text-ibu-navy { color: #0B253A !important; }
+        .border-ibu-navy { border-color: #0B253A !important; }
+        .hover\:bg-ibu-navy:hover { background-color: #0B253A !important; }
+        .hover\:text-ibu-navy:hover { color: #0B253A !important; }
+        .bg-ibu-slate { background-color: #143854 !important; }
+        .hover\:bg-ibu-slate:hover { background-color: #143854 !important; }
+        .bg-ibu-lime { background-color: #A3D55D !important; }
+        .text-ibu-lime { color: #A3D55D !important; }
+        .bg-ibu-lime\/15 { background-color: rgba(163, 213, 93, 0.15) !important; }
+        .bg-ibu-lime\/20 { background-color: rgba(163, 213, 93, 0.20) !important; }
+        .border-ibu-lime\/30 { border-color: rgba(163, 213, 93, 0.30) !important; }
+        .border-ibu-lime\/50 { border-color: rgba(163, 213, 93, 0.50) !important; }
+        .text-ibu-pine { color: #1E6B52 !important; }
+        .bg-ibu-pine { background-color: #1E6B52 !important; }
+        .border-ibu-pine { border-color: #1E6B52 !important; }
+        .bg-ibu-snow { background-color: #F4F7FA !important; }
+        .from-ibu-navy { --tw-gradient-from: #0B253A !important; }
+        .via-ibu-slate { --tw-gradient-via: #143854 !important; }
+
+        /* Плавная прокрутка и кастомный скроллбар */
+        html { scroll-behavior: smooth; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: #F4F7FA; }
+        ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
+
+        /* Анимации появления */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.25s ease-out forwards;
+        }
+
+        /* Стили для печати рецепта */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white !important; }
+            .print-full { max-width: 100% !important; box-shadow: none !important; border: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-ibu-snow text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- ВЕРХНЯЯ НАВИГАЦИОННАЯ ПАНЕЛЬ -->
+    <header class="bg-ibu-navy text-white sticky top-0 z-40 shadow-lg border-b border-white/10 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-wrap items-center justify-between py-3.5 gap-3">
+                <!-- Логотип и название -->
+                <div onclick="navigateToCatalog()" class="flex items-center gap-3 cursor-pointer group">
+                    <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-ibu-lime to-emerald-500 flex items-center justify-center text-ibu-navy shadow-md group-hover:scale-105 transition-transform">
+                        <!-- Иконка биатлонной мишени + вилка/нож -->
+                        <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                            <circle cx="12" cy="12" r="9" />
+                            <circle cx="12" cy="12" r="4" fill="currentColor" />
+                            <line x1="12" y1="1" x2="12" y2="4" />
+                            <line x1="12" y1="20" x2="12" y2="23" />
+                            <line x1="1" y1="12" x2="4" y2="12" />
+                            <line x1="20" y1="12" x2="23" y2="12" />
+                        </svg>
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-extrabold tracking-tight text-lg sm:text-xl text-white">IBU COOKBOOK</span>
+                            <span class="hidden sm:inline-block text-[11px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-ibu-lime/20 text-ibu-lime border border-ibu-lime/30">2024/2025</span>
+                        </div>
+                        <p class="text-xs text-slate-300">Питание чемпионов биатлона • Все рецепты</p>
+                    </div>
+                </div>
+
+                <!-- Кнопки управления в шапке -->
+                <div class="flex items-center gap-2 sm:gap-2.5">
+                    <button onclick="openNewRecipeModal()" class="flex items-center gap-1.5 bg-ibu-lime hover:bg-[#95c94d] text-ibu-navy font-bold text-xs sm:text-sm px-3.5 py-2.5 rounded-xl shadow-sm transition-all active:scale-95">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        <span>Добавить рецепт</span>
+                    </button>
+
+                    <!-- Меню резервного копирования JSON -->
+                    <div class="relative">
+                        <button onclick="toggleBackupMenu()" id="backupMenuBtn" class="flex items-center gap-1.5 bg-ibu-slate hover:bg-white/15 text-slate-200 font-medium text-xs sm:text-sm px-3 py-2.5 rounded-xl border border-white/15 transition-colors" title="Экспорт / Импорт / Сброс книги">
+                            <svg class="w-4 h-4 text-ibu-lime" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/></svg>
+                            <span class="hidden md:inline">Резервная копия</span>
+                        </button>
+                        <div id="backupDropdown" class="hidden absolute right-0 mt-2 w-60 bg-white rounded-2xl shadow-xl border border-slate-200 py-2 text-slate-700 z-50 animate-fade-in">
+                            <div class="px-3.5 py-1.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">Управление данными</div>
+                            <button onclick="exportRecipesJSON()" class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 flex items-center gap-2.5 font-medium">
+                                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                                Скачать книгу (.JSON)
+                            </button>
+                            <label class="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 flex items-center gap-2.5 font-medium cursor-pointer">
+                                <svg class="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                                Загрузить из (.JSON)
+                                <input type="file" id="importJsonInput" accept=".json" onchange="importRecipesJSON(event)" class="hidden">
+                            </label>
+                            <div class="my-1 border-t border-slate-100"></div>
+                            <button onclick="confirmResetAllBook()" class="w-full text-left px-4 py-2.5 text-sm text-rose-600 hover:bg-rose-50 flex items-center gap-2.5 font-medium">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                Сбросить всю книгу к IBU
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- ОСНОВНОЙ КОНТЕЙНЕР ПРИЛОЖЕНИЯ -->
+    <main id="appContainer" class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+        <!-- Динамический контент (Каталог или Детальная страница рецепта) -->
+    </main>
+
+    <!-- МОДАЛЬНОЕ ОКНО СООБЩЕНИЙ / ПОДТВЕРЖДЕНИЙ (замена alert / confirm) -->
+    <div id="customModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-slate-100 animate-fade-in">
+            <h3 id="modalTitle" class="text-lg font-bold text-slate-900 mb-2">Подтверждение</h3>
+            <p id="modalMessage" class="text-sm text-slate-600 mb-6 leading-relaxed"></p>
+            <div id="modalActions" class="flex justify-end gap-2.5"></div>
+        </div>
+    </div>
+
+    <!-- ВСПЛЫВАЮЩЕЕ УВЕДОМЛЕНИЕ (TOAST) -->
+    <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-ibu-navy text-white px-4 py-3 rounded-2xl shadow-xl border border-white/15 flex items-center gap-3 text-sm font-medium">
+            <span class="w-2.5 h-2.5 rounded-full bg-ibu-lime"></span>
+            <span id="toastText">Сохранено</span>
+        </div>
+    </div>
+
+    <!-- ПОДВАЛ -->
+    <footer class="bg-white border-t border-slate-200 mt-12 py-6 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+            <div class="flex items-center gap-2">
+                <span class="font-bold text-ibu-navy">IBU COOKBOOK</span>
+                <span>•</span>
+                <span>Интерактивная книга рецептов Международного союза биатлонистов (Сезон 2024/2025)</span>
+            </div>
+            <div>Все изменения и добавленные рецепты сохраняются локально в вашем браузере.</div>
+        </div>
+    </footer>
+
+    <script>
+        // ============================================================================
+        // 1. БАЗА ДАННЫХ ВСЕХ 16 ОРИГИНАЛЬНЫХ РЕЦЕПТОВ ИЗ IBU COOKBOOK (2024/2025)
+        // ============================================================================
+        const ORIGINAL_RECIPES = [
+            {
+                id: "ibu-1",
+                title: "Финский овощной суп-пюре",
+                category: "world_cup",
+                stage: "Этап 1: Контиолахти, Финляндия",
+                countryFlag: "🇫🇮",
+                prepTime: 30,
+                baseServings: 4,
+                nutritionPerServing: { kcal: 94, protein: 4.5, fat: 1.5, carbs: 15 },
+                description: "Быстрый, согревающий и полезный суп из корнеплодов, который идеально подходит для холодных зимних дней. В Финляндии его традиционно подают с ароматным ржаным хлебом.",
+                tip: "Отличный лёгкий старт перед основной нагрузкой. Чтобы увеличить запас углеводов перед гонкой или тренировкой, дополните суп ломтиками цельнозернового ржаного хлеба и основным блюдом.",
+                accentColor: "from-sky-600 to-blue-800",
+                ingredients: [
+                    { group: "Суп", amount: 700, unit: "г", name: "любимых овощей (морковь, батат, картофель, репа, пастернак, корень сельдерея)" },
+                    { group: "Суп", amount: 100, unit: "г", name: "репчатого лука (1 средняя луковица)" },
+                    { group: "Суп", amount: 1, unit: "зубчик", name: "чеснока" },
+                    { group: "Суп", amount: 1, unit: "ст. л.", name: "рапсового или оливкового масла" },
+                    { group: "Суп", amount: 1000, unit: "мл", name: "воды" },
+                    { group: "Суп", amount: 3, unit: "ст. л.", name: "овощного бульона (концентрата или порошка)" },
+                    { group: "Суп", amount: 1, unit: "ст. л.", name: "сушёных трав (базилик, орегано, эстрагон)" },
+                    { group: "Суп", amount: 0.75, unit: "ч. л.", name: "соли" },
+                    { group: "Суп", amount: 0.25, unit: "ч. л.", name: "чёрного молотого перца" },
+                    { group: "Суп", amount: 200, unit: "мл", name: "нежирных сливок для готовки (или овсяных/рисовых/кокосовых для веган-версии)" },
+                    { group: "Для подачи", amount: 4, unit: "ст. л.", name: "жареных тыквенных или подсолнечных семечек" },
+                    { group: "Для подачи", amount: 4, unit: "ст. л.", name: "лёгкой сметаны" },
+                    { group: "Для подачи", amount: 4, unit: "ломтика", name: "ржаного хлеба" },
+                    { group: "Для подачи", amount: 200, unit: "г", name: "мягкого творога (кварка)" }
+                ],
+                steps: [
+                    "Вымойте, очистите и нарежьте овощи примерно одинаковыми кубиками (должно получиться около 1 литра нарезанных овощей).",
+                    "Очистите и мелко нарежьте репчатый лук и чеснок.",
+                    "Разогрейте масло в кастрюле и слегка обжарьте (пассеруйте) овощи в течение 1 минуты.",
+                    "Влейте воду, добавьте овощной бульон и сушёные травы. Доведите до кипения и варите около 30 минут, пока овощи не станут мягкими (проверьте вилкой).",
+                    "Отлейте и сохраните часть бульона. Измельчите овощи блендером до состояния гладкого пюре (при желании можно протереть через сито).",
+                    "Влейте сохранённый бульон и сливки до получения желаемой густоты супа.",
+                    "Прогрейте суп, разлейте по тарелкам и украсьте сметаной и жареными семечками.",
+                    "По желанию подавайте с ржаным хлебом и мягким творогом."
+                ]
+            },
+            {
+                id: "ibu-2",
+                title: "Сырные клёцки (Каспресскнёдель) с салатом коулслоу",
+                category: "world_cup",
+                stage: "Этап 2: Хохфильцен, Австрия",
+                countryFlag: "🇦🇹",
+                prepTime: 60,
+                baseServings: 4,
+                nutritionPerServing: { kcal: 732, protein: 34, fat: 48, carbs: 42.5 },
+                description: "Традиционное тирольское блюдо из западных регионов Австрии с насыщенным горным сыром, обжаренное до золотистой хрустящей корочки, в сочетании со свежим капустным салатом.",
+                tip: "Настоящее блюдо для восстановления сил после тяжёлого дня. Чтобы сделать вариант более лёгким для спортсменов, уменьшите количество сыра и масла при жарке и подавайте с отварным картофелем для повышения доли углеводов.",
+                accentColor: "from-amber-600 to-red-800",
+                ingredients: [
+                    { group: "Сырные клёцки", amount: 260, unit: "г", name: "тёртого пряного горного сыра" },
+                    { group: "Сырные клёцки", amount: 260, unit: "г", name: "хлеба для кнёдлей (подсушенного белого хлеба кубиками)" },
+                    { group: "Сырные клёцки", amount: 200, unit: "г", name: "молока" },
+                    { group: "Сырные клёцки", amount: 150, unit: "г", name: "яиц (примерно 4 шт.)" },
+                    { group: "Сырные клёцки", amount: 130, unit: "г", name: "репчатого лука" },
+                    { group: "Сырные клёцки", amount: 10, unit: "г", name: "поваренной соли" },
+                    { group: "Сырные клёцки", amount: 30, unit: "г", name: "свежей петрушки" },
+                    { group: "Сырные клёцки", amount: 10, unit: "г", name: "шнитт-лука (зелёного лука)" },
+                    { group: "Сырные клёцки", amount: 4, unit: "г", name: "дроблёного чёрного перца (ок. 1 ч. л.)" },
+                    { group: "Сырные клёцки", amount: 6, unit: "г", name: "сушёного майорана (ок. 2 ч. л.)" },
+                    { group: "Сырные клёцки", amount: 6, unit: "г", name: "гранулированного чеснока (ок. 1 ч. л.)" },
+                    { group: "Салат коулслоу", amount: 1, unit: "шт.", name: "небольшой кочан белокочанной капусты" },
+                    { group: "Салат коулслоу", amount: 60, unit: "мл", name: "травяного или яблочного уксуса" },
+                    { group: "Салат коулслоу", amount: 6, unit: "ст. л.", name: "растительного масла" },
+                    { group: "Салат коулслоу", amount: 1, unit: "ч. л.", name: "сахара" },
+                    { group: "Салат коулслоу", amount: 150, unit: "мл", name: "воды" },
+                    { group: "Салат коулслоу", amount: 0.5, unit: "ч. л.", name: "соли" },
+                    { group: "Салат коулслоу", amount: 1, unit: "ч. л.", name: "семян тмина" }
+                ],
+                steps: [
+                    "Коулслоу: Снимите верхние листья капусты, разрежьте кочан на четвертинки, вырежьте кочерыжку и тонко нашинкуйте.",
+                    "Коулслоу: Смешайте уксус, масло, сахар, воду и соль для маринада, залейте капусту, добавьте семена тмина и хорошо перемешайте. Накройте и уберите в холодильник на пару часов.",
+                    "Клёцки: Взбейте яйца в большой миске.",
+                    "Мелко нарежьте лук, шнитт-лук и петрушку, добавьте к яйцам вместе со всеми специями.",
+                    "Всыпьте тёртый сыр и хлебные кубики. Подогрейте молоко и влейте в миску.",
+                    "Тщательно вымесите массу руками до однородности.",
+                    "Сформируйте 8 одинаковых шариков и слегка приплюсните их лопаткой в плоские биточки.",
+                    "Обжарьте на сковороде до румяной золотистой корочки с обеих сторон и подавайте с салатом коулслоу."
+                ]
+            },
+            {
+                id: "ibu-3",
+                title: "Овощные фрикадельки с соусом Наполитана",
+                category: "world_cup",
+                stage: "Этап 3: Анси — Ле-Гран-Борнан, Франция",
+                countryFlag: "🇫🇷",
+                prepTime: 45,
+                baseServings: 2,
+                nutritionPerServing: { kcal: 505, protein: 14.5, fat: 8.5, carbs: 42.5 },
+                description: "Вдохновлённое свежими альпийскими продуктами Анси блюдо из чечевично-фасолевых фрикаделек в ароматном томатном соусе с пастой.",
+                tip: "Идеальное блюдо для длительных тяжёлых тренировок и восстановления после гонок — высокое содержание сложных углеводов эффективно восполняет запасы гликогена. Совет: для хруста и омега-3 добавьте в фарш 2 ст. л. рубленых грецких орехов.",
+                accentColor: "from-blue-600 to-indigo-800",
+                ingredients: [
+                    { group: "Овощные фрикадельки", amount: 50, unit: "г", name: "сухой чечевицы" },
+                    { group: "Овощные фрикадельки", amount: 125, unit: "г", name: "красной фасоли (отварной или консервированной)" },
+                    { group: "Овощные фрикадельки", amount: 2, unit: "ст. л.", name: "панировочных сухарей панко" },
+                    { group: "Овощные фрикадельки", amount: 1, unit: "шт.", name: "средняя луковица, мелко нарезанная" },
+                    { group: "Овощные фрикадельки", amount: 1, unit: "зубчик", name: "чеснока, измельчённый" },
+                    { group: "Овощные фрикадельки", amount: 1, unit: "ст. л.", name: "свежей рубленой петрушки" },
+                    { group: "Овощные фрикадельки", amount: 0, unit: "по вкусу", name: "соль и чёрный перец" },
+                    { group: "Соус Наполитана", amount: 2, unit: "шт.", name: "свежих помидора" },
+                    { group: "Соус Наполитана", amount: 400, unit: "г", name: "дроблёных томатов в собственном соку" },
+                    { group: "Соус Наполитана", amount: 2, unit: "ст. л.", name: "оливкового масла" },
+                    { group: "Соус Наполитана", amount: 1, unit: "шт.", name: "средняя луковица, мелко нарезанная" },
+                    { group: "Соус Наполитана", amount: 1, unit: "зубчик", name: "чеснока, измельчённый" },
+                    { group: "Соус Наполитана", amount: 1, unit: "шт.", name: "морковь, нарезанная мелким кубиком (брюнуаз)" },
+                    { group: "Соус Наполитана", amount: 0, unit: "по вкусу", name: "свежий или сушёный базилик, соль и перец" },
+                    { group: "Паста", amount: 150, unit: "г", name: "пасты фузилли или пенне" }
+                ],
+                steps: [
+                    "Фрикадельки: Отварите чечевицу (и фасоль, если используете сухую) в подсоленной воде до мягкости. Слейте воду, грубо разомните красную фасоль и смешайте с чечевицей.",
+                    "В большой миске соедините фасолево-чечевичную массу с сухарями панко, луком, чесноком и петрушкой. Приправьте солью и перцем.",
+                    "Сформируйте шарики и обжарьте их на разогретой сковороде с оливковым маслом до золотистой хрустящей корочки со всех сторон.",
+                    "Соус Наполитана: В глубоком сотейнике разогрейте оливковое масло на среднем огне, обжарьте лук, чеснок и мелко нарезанную морковь до мягкости.",
+                    "Добавьте нарезанные свежие и дроблёные томаты, приправьте базиликом, солью и перцем. Тушите на медленном огне до загустения соуса, периодически помешивая.",
+                    "Отварите пасту аль денте. Переложите фрикадельки в соус Наполитана, прогрейте и подавайте поверх пасты, украсив листьями свежего базилика."
+                ]
+            },
+            {
+                id: "ibu-4",
+                title: "Грибное рагу с оригинальными тюрингскими клёцками",
+                category: "world_cup",
+                stage: "Этап 4: Оберхоф, Германия",
+                countryFlag: "🇩🇪",
+                prepTime: 70,
+                baseServings: 4,
+                nutritionPerServing: { kcal: 626, protein: 18, fat: 19, carbs: 92 },
+                description: "Настоящий вкус Тюрингского леса: нежные картофельные клёцки с хрустящими гренками внутри, подаваемые с насыщенным сливочно-грибным рагу.",
+                tip: "Очень высокий уровень сложных углеводов (92 г на порцию) делает это блюдо мощным топливом перед марафонскими или индивидуальными гонками на выносливость.",
+                accentColor: "from-emerald-700 to-teal-900",
+                ingredients: [
+                    { group: "Грибное рагу", amount: 500, unit: "г", name: "свежих лесных грибов или шампиньонов" },
+                    { group: "Грибное рагу", amount: 1, unit: "шт.", name: "репчатая луковица" },
+                    { group: "Грибное рагу", amount: 3, unit: "ст. л.", name: "сливочного масла" },
+                    { group: "Грибное рагу", amount: 100, unit: "мл", name: "овощного бульона" },
+                    { group: "Грибное рагу", amount: 200, unit: "мл", name: "сливок" },
+                    { group: "Грибное рагу", amount: 0, unit: "по вкусу", name: "специи, травы, соль и чёрный перец" },
+                    { group: "Тюрингские клёцки", amount: 2000, unit: "г", name: "картофеля (700 г для варки и 1300 г для натирания в сыром виде)" },
+                    { group: "Тюрингские клёцки", amount: 2, unit: "ломтика", name: "тостового белого хлеба" },
+                    { group: "Тюрингские клёцки", amount: 1, unit: "ст. л.", name: "сливочного масла (для обжарки тостов)" },
+                    { group: "Тюрингские клёцки", amount: 1, unit: "ст. л.", name: "картофельного крахмала или муки" },
+                    { group: "Тюрингские клёцки", amount: 1, unit: "ст. л.", name: "соли" }
+                ],
+                steps: [
+                    "Грибное рагу: Промойте грибы и нарежьте их ломтиками, лук нарежьте полукольцами или кубиками.",
+                    "Обжарьте лук на сливочном масле до прозрачности, добавьте грибы и готовьте 5–7 минут.",
+                    "Влейте овощной бульон и сливки, доведите до кипения (около 4 минут), приправьте специями, травами, солью и перцем.",
+                    "Тюрингские клёцки: Очистите весь картофель. 700 г нарежьте кусочками и отварите в подсоленной воде до мягкости. Оставшиеся 1300 г натрите на мелкой тёрке и тщательно отожмите через льняное полотенце или марлю.",
+                    "Нарежьте тостовый хлеб кубиками 1×1 см и обжарьте на сливочном масле до хруста.",
+                    "В миске смешайте отжатый сырой картофель с солью. Разомните горячий варёный картофель в пюре и соедините с сырым. Вымесите тесто (если оно слишком мягкое, добавьте картофельный крахмал).",
+                    "Вскипятите большую кастрюлю подсоленной воды. Сформируйте из картофельного теста плотные шары размером с теннисный мяч, вложив внутрь каждого по 2–3 жареных сухарика.",
+                    "Опустите клёцки в кипящую воду и томите на слабом огне около 20 минут — они готовы, как только всплывут на поверхность."
+                ]
+            },
+            {
+                id: "ibu-5",
+                title: "Веганский картофельный гуляш",
+                category: "world_cup",
+                stage: "Этап 5: Рупольдинг, Германия",
+                countryFlag: "🇩🇪",
+                prepTime: 45,
+                baseServings: 4,
+                nutritionPerServing: { kcal: 505, protein: 19, fat: 19, carbs: 63 },
+                description: "Сытный баварский картофельный гуляш на растительной основе с ароматной копчёной паприкой, тмином и хрустящими кубиками обжаренного тофу.",
+                tip: "Добавление обжаренного тофу повышает содержание полноценного растительного белка, а картофель и овощи обеспечивают длительное высвобождение энергии.",
+                accentColor: "from-orange-600 to-red-700",
+                ingredients: [
+                    { group: "Картофельный гуляш", amount: 1000, unit: "г", name: "картофеля" },
+                    { group: "Картофельный гуляш", amount: 1, unit: "шт.", name: "репчатая луковица" },
+                    { group: "Картофельный гуляш", amount: 2, unit: "шт.", name: "красных болгарских перца" },
+                    { group: "Картофельный гуляш", amount: 2, unit: "ст. л.", name: "оливкового масла" },
+                    { group: "Картофельный гуляш", amount: 2, unit: "ч. л.", name: "молотого тмина" },
+                    { group: "Картофельный гуляш", amount: 2, unit: "ч. л.", name: "сладкой молотой паприки" },
+                    { group: "Картофельный гуляш", amount: 1, unit: "ч. л.", name: "копчёной паприки" },
+                    { group: "Картофельный гуляш", amount: 2, unit: "ч. л.", name: "кумина (зиры)" },
+                    { group: "Картофельный гуляш", amount: 2, unit: "ч. л.", name: "томатной пасты" },
+                    { group: "Картофельный гуляш", amount: 4, unit: "ч. л.", name: "яблочного уксуса" },
+                    { group: "Картофельный гуляш", amount: 1400, unit: "мл", name: "овощного бульона" },
+                    { group: "Картофельный гуляш", amount: 160, unit: "г", name: "моркови" },
+                    { group: "Картофельный гуляш", amount: 2, unit: "ч. л.", name: "сушёного майорана" },
+                    { group: "Картофельный гуляш", amount: 6, unit: "шт.", name: "сушёных лавровых листьев" },
+                    { group: "Картофельный гуляш", amount: 4, unit: "ч. л.", name: "кукурузного крахмала" },
+                    { group: "Картофельный гуляш", amount: 300, unit: "г", name: "твёрдого тофу" },
+                    { group: "Картофельный гуляш", amount: 1, unit: "ст. л.", name: "кокосового или растительного масла" },
+                    { group: "Картофельный гуляш", amount: 0, unit: "по вкусу", name: "соль" },
+                    { group: "Топпинг", amount: 4, unit: "ст. л.", name: "соевого или греческого йогурта" },
+                    { group: "Топпинг", amount: 0, unit: "по вкусу", name: "свежая петрушка" }
+                ],
+                steps: [
+                    "Очистите картофель и нарежьте кубиками 1–2 см. Лук нарежьте тонкими полукольцами, перец — кусочками, морковь — кружочками.",
+                    "Разогрейте оливковое масло в большой кастрюле или сотейнике. Обжарьте лук на среднем огне до золотистого цвета.",
+                    "Добавьте все специи (тмин, обе паприки, кумин) и томатную пасту, обжаривайте 1 минуту для раскрытия аромата.",
+                    "Деглазируйте яблочным уксусом и влейте овощной бульон. Добавьте картофель, морковь, лавровый лист и майоран. Варите под крышкой около 15 минут.",
+                    "Через 5–8 минут после начала варки добавьте сладкий перец и готовьте до мягкости картофеля.",
+                    "Разведите кукурузный крахмал в стакане холодной воды и влейте в гуляш для бархатистой густоты. Посолите по вкусу и удалите лавровые листья.",
+                    "Нарежьте тофу мелкими кубиками, приправьте по вкусу и обжарьте на кокосовом масле до хрустящей корочки. Добавьте в гуляш перед подачей.",
+                    "Подавайте горячим с ложкой соевого йогурта, щепоткой тмина и свежей петрушкой."
+                ]
+            },
+            {
+                id: "ibu-6",
+                title: "Паста пенне с горным песто",
+                category: "world_cup",
+                stage: "Этап 6: Антхольц-Антерсельва, Италия",
+                countryFlag: "🇮🇹",
+                prepTime: 30,
+                baseServings: 4,
+                nutritionPerServing: { kcal: 898, protein: 24, fat: 48.5, carbs: 91 },
+                description: "Итальянская классика с альпийским акцентом Южного Тироля: соус песто из базилика, рукколы, петрушки, грецких орехов, вяленых томатов и горного сыра.",
+                tip: "Для более лёгкой спортивной версии уменьшите количество грецких орехов до 30 г, сыра до 20 г и оливкового масла до 100 г. Чтобы увеличить количество белка для восстановления мышц, добавьте 200 г рикотты.",
+                accentColor: "from-emerald-600 to-green-800",
+                ingredients: [
+                    { group: "Горный песто", amount: 40, unit: "г", name: "свежих листьев базилика" },
+                    { group: "Горный песто", amount: 40, unit: "г", name: "свежей рукколы" },
+                    { group: "Горный песто", amount: 40, unit: "г", name: "свежей петрушки" },
+                    { group: "Горный песто", amount: 40, unit: "г", name: "слегка обжаренных грецких орехов" },
+                    { group: "Горный песто", amount: 60, unit: "г", name: "вяленых томатов" },
+                    { group: "Горный песто", amount: 30, unit: "г", name: "тёртого горного сыра или пармезана (для веган-версии замените молотым миндалём)" },
+                    { group: "Горный песто", amount: 130, unit: "г", name: "оливкового масла Extra Virgin" },
+                    { group: "Горный песто", amount: 1, unit: "г", name: "чеснока (небольшой зубчик)" },
+                    { group: "Горный песто", amount: 1, unit: "ч. л.", name: "свежевыжатого лимонного сока" },
+                    { group: "Горный песто", amount: 0, unit: "по вкусу", name: "соль, свежемолотый чёрный перец, тёртый мускатный орех" },
+                    { group: "Паста", amount: 480, unit: "г", name: "пасты пенне ригате" }
+                ],
+                steps: [
+                    "Тщательно промойте листья базилика, рукколу и петрушку и обсушите их кухонным полотенцем.",
+                    "Поместите зелень в чашу блендера вместе с 30 г оливкового масла, вялеными томатами, обжаренными грецкими орехами и чесноком. Приправьте солью, перцем и мускатным орехом.",
+                    "Измельчите до однородной массы, затем тонкой струйкой влейте оставшееся оливковое масло и взбейте до кремовой текстуры.",
+                    "Добавьте тёртый сыр и ещё раз коротко взбейте. В конце влейте лимонный сок для яркой свежести.",
+                    "Отварите пасту пенне в большом количестве подсоленной кипящей воды до состояния «аль денте».",
+                    "Сохраните немного воды от варки пасты, слейте пасту (не промывая) и сразу же перемешайте с горным песто, добавив пару ложек воды от пасты для шелковистой эмульсии."
+                ]
+            },
+            {
+                id: "ibu-7",
+                title: "Кулайда (Чешский грибной суп)",
+                category: "world_cup",
+                stage: "Этап 7: Нове-Место-на-Мораве, Чехия",
+                countryFlag: "🇨🇿",
+                prepTime: 45,
+                baseServings: 4,
+                nutritionPerServing: { kcal: 367.5, protein: 14.5, fat: 18.5, carbs: 35 },
+                description: "Знаменитый традиционный чешский суп с лесными грибами, картофелем, ароматным свежим укропом, нежной сметанной заправкой и яйцом пашот.",
+                tip: "Богат витамином С из картофеля и свежего укропа, витаминами группы B из белых грибов и витамином K, поддерживающим здоровье костей и сосудов.",
+                accentColor: "from-blue-700 to-rose-700",
+                ingredients: [
+                    { group: "Основа супа", amount: 500, unit: "г", name: "картофеля, очищенного и нарезанного кубиками" },
+                    { group: "Основа супа", amount: 250, unit: "г", name: "свежих грибов (предпочтительно белых)" },
+                    { group: "Основа супа", amount: 1, unit: "шт.", name: "репчатая луковица" },
+                    { group: "Основа супа", amount: 3, unit: "зубчика", name: "чеснока" },
+                    { group: "Основа супа", amount: 1000, unit: "мл", name: "овощного бульона" },
+                    { group: "Основа супа", amount: 250, unit: "мл", name: "сметаны (или сливок для более нежного вкуса)" },
+                    { group: "Основа супа", amount: 2, unit: "ст. л.", name: "пшеничной муки (для загущения)" },
+                    { group: "Специи и подача", amount: 2, unit: "шт.", name: "лавровых листа" },
+                    { group: "Специи и подача", amount: 5, unit: "горошин", name: "душистого перца" },
+                    { group: "Специи и подача", amount: 5, unit: "горошин", name: "чёрного перца" },
+                    { group: "Специи и подача", amount: 1, unit: "ст. л.", name: "сливочного или оливкового масла" },
+                    { group: "Специи и подача", amount: 1, unit: "ч. л.", name: "уксуса" },
+                    { group: "Специи и подача", amount: 0, unit: "по вкусу", name: "щепотка сахара, соль, перец, свежий укроп" },
+                    { group: "Специи и подача", amount: 4, unit: "шт.", name: "яйца (пашот или варёные вкрутую)" }
+                ],
+                steps: [
+                    "Растопите сливочное масло в кастрюле и обжарьте мелко нарезанный лук до золотистого цвета. Добавьте измельчённый чеснок и жарьте 30 секунд. Затем добавьте нарезанные грибы и тушите до мягкости и испарения лишней влаги.",
+                    "Добавьте в кастрюлю кубики картофеля, лавровый лист, душистый и чёрный перец. Влейте овощной бульон, доведите до кипения и варите на слабом огне 15–20 минут до мягкости картофеля.",
+                    "В отдельной миске тщательно смешайте сметану с мукой до исчезновения комочков (можно добавить половник тёплого бульона для выравнивания температуры). Медленно влейте в суп, помешивая, и проварите 5 минут.",
+                    "Приправьте суп уксусом, щепоткой сахара, солью и перцем по вкусу. В самом конце добавьте много мелко рубленого свежего укропа.",
+                    "Отдельно приготовьте яйца пашот (или отварите яйца вкрутую и разрежьте пополам). Разлейте горячую кулайду по тарелкам и выложите сверху по яйцу."
+                ]
+            },
+            {
+                id: "ibu-8",
+                title: "Рулетные клёцки с творогом и белыми грибами по-поклюкски",
+                category: "world_cup",
+                stage: "Этап 8: Поклюка, Словения",
+                countryFlag: "🇸🇮",
+                prepTime: 120,
+                baseServings: 4,
+                nutritionPerServing: { kcal: 845, protein: 36, fat: 42, carbs: 76 },
+                description: "Традиционные словенские штрукули из тонкого вытяжного теста с фермерским творогом из долины Бохинь под соусом из белых грибов («юрчеков»).",
+                tip: "Богатый источник белка (36 г на порцию!) благодаря фермерскому творогу и яйцам, идеально восстанавливает мышечные волокна после высокогорных этапов.",
+                accentColor: "from-teal-700 to-blue-900",
+                ingredients: [
+                    { group: "Тесто", amount: 350, unit: "г", name: "пшеничной муки высшего сорта" },
+                    { group: "Тесто", amount: 1, unit: "шт.", name: "яйцо" },
+                    { group: "Тесто", amount: 1, unit: "ч. л.", name: "соли" },
+                    { group: "Тесто", amount: 2, unit: "ст. л.", name: "растительного масла" },
+                    { group: "Тесто", amount: 150, unit: "мл", name: "тёплой воды" },
+                    { group: "Тесто", amount: 1, unit: "ст. л.", name: "уксуса" },
+                    { group: "Творожная начинка", amount: 500, unit: "г", name: "несолёного творога" },
+                    { group: "Творожная начинка", amount: 200, unit: "г", name: "сметаны" },
+                    { group: "Творожная начинка", amount: 2, unit: "шт.", name: "яйца" },
+                    { group: "Творожная начинка", amount: 1, unit: "ч. л.", name: "соли" },
+                    { group: "Творожная начинка", amount: 1, unit: "ст. л.", name: "манной крупы" },
+                    { group: "Соус из белых грибов", amount: 300, unit: "г", name: "свежих или замороженных белых грибов" },
+                    { group: "Соус из белых грибов", amount: 1, unit: "шт.", name: "луковица" },
+                    { group: "Соус из белых грибов", amount: 2, unit: "зубчика", name: "чеснока" },
+                    { group: "Соус из белых грибов", amount: 250, unit: "мл", name: "овощного бульона" },
+                    { group: "Соус из белых грибов", amount: 250, unit: "мл", name: "сливок для готовки" },
+                    { group: "Соус из белых грибов", amount: 100, unit: "мл", name: "сухого белого вина" },
+                    { group: "Соус из белых грибов", amount: 50, unit: "г", name: "сливочного масла" },
+                    { group: "Соус из белых грибов", amount: 2, unit: "веточки", name: "свежей петрушки" }
+                ],
+                steps: [
+                    "Тесто: Смешайте муку, яйцо, соль, растительное масло, тёплую воду и уксус. Замесите эластичное тесто и оставьте отдыхать на 1 час под плёнкой.",
+                    "Начинка: Смешайте творог, сметану, яйца, соль и манную крупу. Дайте настояться 20 минут, чтобы манка набухла.",
+                    "Раскатайте тесто как можно тоньше на присыпанном мукой полотенце. Равномерно распределите творожную начинку слоем около 1 см.",
+                    "Аккуратно сверните тесто в плотный рулет, заверните его в чистое кухонное полотенце (перевязав концы) и варите в кипящей подсоленной воде 30 минут.",
+                    "Дайте рулету немного остыть, снимите ткань и нарежьте ломтиками толщиной 3 см.",
+                    "Соус из белых грибов: Обжарьте мелко нарезанный лук на сливочном масле до золотистого цвета, добавьте нарезанные белые грибы, жарьте несколько минут, затем добавьте чеснок.",
+                    "Влейте белое вино и выпарите его почти полностью. Добавьте овощной бульон и уварите на треть. В конце влейте сливки, прогрейте и посыпьте рубленой петрушкой. Подавайте клёцки в глубокой тарелке, полив грибным соусом."
+                ]
+            },
+            {
+                id: "ibu-9",
+                title: "Запечённая тыква Хоккайдо с кускусом и пряным маслом",
+                category: "world_cup",
+                stage: "Этап 9: Осло — Холменколлен, Норвегия",
+                countryFlag: "🇳🇴",
+                prepTime: 60,
+                baseServings: 4,
+                nutritionPerServing: { kcal: 230, protein: 10, fat: 7, carbs: 31.5 },
+                description: "Яркое скандинавское блюдо: карамелизированная в духовке тыква Хоккайдо, нежный морковный крем, цветная капуста, обжаренный тофу, кускус и коричневое масло с чили и имбирём.",
+                tip: "Лёгкое, богатое антиоксидантами и бета-каротином блюдо. Отлично подходит для вечернего приёма пищи или разгрузочного дня.",
+                accentColor: "from-red-700 to-blue-900",
+                ingredients: [
+                    { group: "Основные ингредиенты", amount: 1, unit: "шт.", name: "небольшая тыква Хоккайдо" },
+                    { group: "Основные ингредиенты", amount: 1, unit: "шт.", name: "кочан цветной капусты, разобранный на соцветия" },
+                    { group: "Основные ингредиенты", amount: 4, unit: "шт.", name: "моркови, очищенной и нарезанной" },
+                    { group: "Основные ингредиенты", amount: 30, unit: "г", name: "сливочного масла" },
+                    { group: "Основные ингредиенты", amount: 120, unit: "г", name: "тофу" },
+                    { group: "Основные ингредиенты", amount: 150, unit: "г", name: "кускуса" },
+                    { group: "Пряное масло и подача", amount: 1, unit: "шт.", name: "красный перец чили, мелко нарезанный" },
+                    { group: "Пряное масло и подача", amount: 1, unit: "ст. л.", name: "свежего тёртого имбиря" },
+                    { group: "Пряное масло и подача", amount: 2, unit: "ст. л.", name: "подсолнечного масла" },
+                    { group: "Пряное масло и подача", amount: 1, unit: "ст. л.", name: "лимонного сока" },
+                    { group: "Пряное масло и подача", amount: 1, unit: "ст. л.", name: "мелко рубленой петрушки" },
+                    { group: "Пряное масло и подача", amount: 0, unit: "по вкусу", name: "соль, перец, зёрна граната и дип из рикотты/йогурта" }
+                ],
+                steps: [
+                    "Разогрейте духовку до 230°C. Разрежьте тыкву Хоккайдо на 4 дольки, удалите семена, сбрызните подсолнечным маслом, посолите и поперчите.",
+                    "То же самое сделайте с соцветиями цветной капусты. Выложите тыкву и капусту на противень с пергаментом и запекайте 20–25 минут до мягкости тыквы. Готовую цветную капусту сбрызните лимонным соком.",
+                    "Морковный крем: Запеките нарезанную морковь со сливочным маслом (около 20 г) в течение 30 минут до мягкости, затем пюрируйте в блендере до гладкости и приправьте солью и перцем.",
+                    "Приготовьте кускус согласно инструкции на упаковке. Тофу нарежьте мелкими кубиками и обжарьте на сковороде до румяной корочки.",
+                    "Пряное коричневое масло: Растопите оставшееся сливочное масло на среднем огне, пока оно не станет золотисто-орехового оттенка. Добавьте чили и имбирь, прогрейте 1 минуту.",
+                    "Выложите на тарелку морковный крем, кускус, запечённую тыкву, цветную капусту и тофу. Полейте пряным маслом с чили и имбирём, украсьте зеленью и зёрнами граната."
+                ]
+            },
+            {
+                id: "ibu-10",
+                title: "Капунс (Традиционные рулетики из Граубюндена)",
+                category: "championship",
+                stage: "Чемпионат мира: Ленцерхайде, Швейцария",
+                countryFlag: "🇨🇭",
+                prepTime: 60,
+                baseServings: 4,
+                nutritionPerServing: { kcal: 516, protein: 18, fat: 18.5, carbs: 69 },
+                description: "Легендарное блюдо швейцарского кантона Граубюнден: нежные рулетики из листьев мангольда с ароматным травяным тестом, запечённые под пармезаном.",
+                tip: "Сбалансированное блюдо для основного приёма пищи после соревнований: сочетание медленных углеводов, белка из яиц и сыра, а также микроэлементов из листового мангольда.",
+                accentColor: "from-red-600 to-rose-800",
+                ingredients: [
+                    { group: "Тесто и начинка", amount: 300, unit: "г", name: "пшеничной муки" },
+                    { group: "Тесто и начинка", amount: 3, unit: "шт.", name: "яйца" },
+                    { group: "Тесто и начинка", amount: 50, unit: "мл", name: "смеси молока и воды (поровну)" },
+                    { group: "Тесто и начинка", amount: 1, unit: "ч. л.", name: "соли" },
+                    { group: "Тесто и начинка", amount: 100, unit: "г", name: "белого хлеба (мелким кубиком)" },
+                    { group: "Тесто и начинка", amount: 1, unit: "шт.", name: "репчатая луковица" },
+                    { group: "Тесто и начинка", amount: 2, unit: "ст. л.", name: "топлёного или сливочного масла" },
+                    { group: "Тесто и начинка", amount: 0, unit: "по вкусу", name: "свежая зелень (петрушка, шнитт-лук, розмарин, базилик)" },
+                    { group: "Сборка и запекание", amount: 13, unit: "шт.", name: "крупных листьев мангольда (12–14 шт., можно заменить листьями савойской капусты)" },
+                    { group: "Сборка и запекание", amount: 50, unit: "г", name: "тёртого пармезана" },
+                    { group: "Сборка и запекание", amount: 20, unit: "г", name: "сливочного масла" },
+                    { group: "Сборка и запекание", amount: 300, unit: "мл", name: "овощного бульона (опционально для запекания)" },
+                    { group: "Сборка и запекание", amount: 300, unit: "мл", name: "молока (опционально для запекания)" }
+                ],
+                steps: [
+                    "Замесите плотное эластичное тесто из муки, яиц, смеси молока с водой и соли.",
+                    "Мелко нарежьте белый хлеб и лук, слегка обжарьте их на топлёном масле до мягкости лука.",
+                    "Мелко нарубите всю зелень (оставив немного для украшения) и вмешайте её вместе с обжаренным луком и хлебом в тесто.",
+                    "Быстро бланшируйте листья мангольда в кипятке (30–40 секунд), чтобы они стали мягкими и эластичными.",
+                    "Выложите по столовой ложке теста на каждый лист мангольда и аккуратно сверните конвертиком/рулетиком, при необходимости закрепив зубочисткой.",
+                    "Опустите капунс в кипящую подсоленную воду и варите на слабом огне 20 минут.",
+                    "Выложите готовые рулетики слоями в форму, пересыпая тёртым пармезаном и зеленью, и полейте растопленным сливочным маслом.",
+                    "По желанию залейте капунс смесью бульона и молока (по 300 мл) и запеките в духовке 10–15 минут при 180°C."
+                ]
+            },
+            {
+                id: "ibu-11",
+                title: "Картофельный чизкейк с морошковым майонезом",
+                category: "championship",
+                stage: "Юниорский ЧМ: Эстерсунд, Швеция",
+                countryFlag: "🇸🇪",
+                prepTime: 60,
+                baseServings: 4,
+                nutritionPerServing: { kcal: 1096, protein: 18.5, fat: 78, carbs: 80 },
+                description: "Северный деликатес из региона Емтланд: нежная запеканка из тончайших слоёв картофеля и белого козьего сыра в сочетании с кисло-сладким морошковым соусом.",
+                tip: "Для более лёгкой и спортивной версии замените майонез в морошковом соусе на густой греческий йогурт — это значительно снизит калорийность и содержание жиров при сохранении кремовой текстуры. Если нет морошки, используйте физалис.",
+                accentColor: "from-blue-600 to-amber-500",
+                ingredients: [
+                    { group: "Картофельный чизкейк", amount: 10, unit: "шт.", name: "средних картофелин" },
+                    { group: "Картофельный чизкейк", amount: 1, unit: "ст. л.", name: "соли" },
+                    { group: "Картофельный чизкейк", amount: 1, unit: "ст. л.", name: "молотого белого перца" },
+                    { group: "Картофельный чизкейк", amount: 1, unit: "щепотка", name: "мелко нарезанного свежего тимьяна" },
+                    { group: "Картофельный чизкейк", amount: 200, unit: "г", name: "белого козьего сыра («Vit Caprin» или аналогичного)" },
+                    { group: "Картофельный чизкейк", amount: 125, unit: "мл", name: "жирных сливок (100–150 мл)" },
+                    { group: "Морошковый майонез", amount: 300, unit: "мл", name: "майонеза (или греческого йогурта для лёгкой версии)" },
+                    { group: "Морошковый майонез", amount: 100, unit: "мл", name: "морошкового варенья или джема" },
+                    { group: "Морошковый майонез", amount: 1, unit: "ст. л.", name: "соли" },
+                    { group: "Морошковый майонез", amount: 0.5, unit: "ст. л.", name: "белого перца" },
+                    { group: "Морошковый майонез", amount: 5, unit: "капель", name: "вустерского соуса" }
+                ],
+                steps: [
+                    "Очистите картофель и нарежьте его очень тонкими ломтиками (толщиной около 1 мм, удобно использовать тёрку-мандолину).",
+                    "Приправьте картофельные ломтики солью, белым перцем и рубленым свежим тимьяном.",
+                    "Мелко натрите козий сыр. Выкладывайте в форму для запекания чередующимися плотными слоями картофель и сыр до самого верха, затем залейте сливками.",
+                    "Запекайте в духовке при 175°C около 40 минут до мягкости картофеля и румяной золотистой корочки.",
+                    "Остудите чизкейк, затем уберите в холодильник под пресс (поставив сверху что-то тяжёлое) минимум на 6 часов для уплотнения слоёв. Перед подачей нарежьте порциями и разогрейте.",
+                    "Морошковый майонез: Смешайте все ингредиенты для соуса и дайте настояться 1–2 часа. Подавайте картофельный чизкейк с овощами гриль (томатами, морковью, грибами) и хрустящими чипсами из кейла."
+                ]
+            },
+            {
+                id: "ibu-12",
+                title: "Биатлор Ролл (Ski Track Wrap 20/20)",
+                category: "bonus",
+                stage: "Бонус: Жюль Бурнотт (Канада, амбассадор IBU)",
+                countryFlag: "🇨🇦",
+                prepTime: 50,
+                baseServings: 20,
+                nutritionPerServing: { kcal: 507, protein: 18.5, fat: 17, carbs: 72 },
+                description: "Знаменитый «20/20» мил-преп от канадского биатлониста Жюля Бурнотта: 20 роллов (по числу мишеней в гонке!), выложенных на столе как две параллельные лыжни.",
+                tip: "Идеальная заготовка для тренировочных сборов и плотного графика! Роллы отлично хранятся в холодильнике всю неделю, их можно есть холодными с горчицей или быстро разогреть на гриле/сковороде.",
+                accentColor: "from-red-600 to-slate-800",
+                ingredients: [
+                    { group: "Начинка и соус", amount: 500, unit: "г", name: "репчатого лука" },
+                    { group: "Начинка и соус", amount: 750, unit: "г", name: "моркови" },
+                    { group: "Начинка и соус", amount: 750, unit: "г", name: "твёрдого тофу" },
+                    { group: "Начинка и соус", amount: 750, unit: "мл", name: "томатного соуса" },
+                    { group: "Начинка и соус", amount: 350, unit: "мл", name: "консервированной или варёной кукурузы" },
+                    { group: "Начинка и соус", amount: 350, unit: "мл", name: "фасоли в кленовом сиропе (или красной консервированной фасоли)" },
+                    { group: "Начинка и соус", amount: 500, unit: "г", name: "сухого риса (любого сорта)" },
+                    { group: "Специи и сборка", amount: 4, unit: "зубчика", name: "чеснока" },
+                    { group: "Специи и сборка", amount: 10, unit: "г", name: "свежего имбиря" },
+                    { group: "Специи и сборка", amount: 1, unit: "ч. л.", name: "соли" },
+                    { group: "Специи и сборка", amount: 3, unit: "ч. л.", name: "чёрного перца" },
+                    { group: "Специи и сборка", amount: 1, unit: "ч. л.", name: "кумина (зиры)" },
+                    { group: "Специи и сборка", amount: 1, unit: "ч. л.", name: "паприки" },
+                    { group: "Специи и сборка", amount: 1, unit: "ч. л.", name: "мускатного ореха" },
+                    { group: "Специи и сборка", amount: 1, unit: "ч. л.", name: "порошка карри" },
+                    { group: "Специи и сборка", amount: 250, unit: "мл", name: "майонеза или соуса дижоннез" },
+                    { group: "Специи и сборка", amount: 2, unit: "ч. л.", name: "растительного масла" },
+                    { group: "Специи и сборка", amount: 100, unit: "г", name: "свежей петрушки" },
+                    { group: "Специи и сборка", amount: 100, unit: "г", name: "зелёного лука, нарезанного" },
+                    { group: "Специи и сборка", amount: 20, unit: "шт.", name: "больших цельнозерновых тортилий" }
+                ],
+                steps: [
+                    "Отварите рис в кастрюле, добавив в воду 1 ч. л. порошка карри для золотистого цвета и аромата.",
+                    "Очистите и тонко нарежьте морковь и лук, затем пассеруйте их в большой кастрюле с 1 ч. л. масла до мягкости моркови и карамелизации лука.",
+                    "Нарежьте тофу тонкими ломтиками и обжарьте на отдельной сковороде с 1 ч. л. масла, добавив чеснок, паприку и мускатный орех.",
+                    "В кастрюлю с овощами влейте томатный соус, добавьте фасоль, кукурузу, имбирь и оставшиеся специи. Прогрейте на слабом огне до лёгкого кипения.",
+                    "Добавьте готовый рис в кастрюлю с соусом и аккуратно перемешайте.",
+                    "Разложите тортильи в два ряда по 10 штук (как лыжню!), равномерно распределите рисово-овощную начинку, сверху выложите жареный тофу, немного соуса/майонеза, зелёный лук и петрушку.",
+                    "Плотно сверните роллы, упакуйте и уберите в холодильник — запас энергии на всю тренировочную неделю готов!"
+                ]
+            },
+            {
+                id: "ibu-13",
+                title: "Овощной киш с чечевичной основой",
+                category: "bonus",
+                stage: "Бонус: Майя Клотенс (Бельгия, амбассадор IBU)",
+                countryFlag: "🇧🇪",
+                prepTime: 90,
+                baseServings: 4,
+                nutritionPerServing: { kcal: 514, protein: 18, fat: 25, carbs: 54 },
+                description: "Любимый мил-преп бельгийской биатлонистки Майи Клотенс: открытый пирог на высокобелковом тесте из чечевичной муки и овсяных хлопьев с карамелизированным луком-шалотом и овощами.",
+                tip: "Отличный вариант, чтобы приготовить заранее и быстро поесть сразу после возвращения с тренировки. Подавайте ¼ киша со свежим салатом, а при повышенном расходе энергии — с порцией риса или пасты.",
+                accentColor: "from-amber-700 to-emerald-800",
+                ingredients: [
+                    { group: "Чечевичное тесто", amount: 100, unit: "г", name: "чечевичной муки" },
+                    { group: "Чечевичное тесто", amount: 50, unit: "г", name: "овсяных хлопьев" },
+                    { group: "Чечевичное тесто", amount: 50, unit: "г", name: "цельнозерновой пшеничной муки" },
+                    { group: "Чечевичное тесто", amount: 1, unit: "шт.", name: "яйцо" },
+                    { group: "Чечевичное тесто", amount: 40, unit: "г", name: "оливкового масла" },
+                    { group: "Чечевичное тесто", amount: 0, unit: "по консистенции", name: "холодная вода, соль, перец и сушёные травы" },
+                    { group: "Овощная начинка и заливка", amount: 2, unit: "шт.", name: "луковицы шалот" },
+                    { group: "Овощная начинка и заливка", amount: 1, unit: "ст. л.", name: "мёда" },
+                    { group: "Овощная начинка и заливка", amount: 2, unit: "шт.", name: "цукини или баклажана" },
+                    { group: "Овощная начинка и заливка", amount: 0, unit: "по вкусу", name: "шампиньоны, вяленые томаты, прованские травы" },
+                    { group: "Овощная начинка и заливка", amount: 3, unit: "шт.", name: "яйца" },
+                    { group: "Овощная начинка и заливка", amount: 200, unit: "мл", name: "сметаны (crème fraîche) или соевых сливок" },
+                    { group: "Овощная начинка и заливка", amount: 100, unit: "мл", name: "молока (обычного или растительного)" },
+                    { group: "Овощная начинка и заливка", amount: 1, unit: "ст. л.", name: "горчицы" },
+                    { group: "Овощная начинка и заливка", amount: 0, unit: "по вкусу", name: "соль, перец, козий сыр и базилик для топпинга" }
+                ],
+                steps: [
+                    "Разогрейте сковороду с 1 ст. л. оливкового масла, обжарьте нарезанный шалот до золотистости, добавьте мёд и карамелизируйте. Отложите в сторону.",
+                    "Нарежьте цукини (и грибы, если используете) и обжарьте на сковороде около 20 минут с солью, перцем и 1 ст. л. прованских трав.",
+                    "Пока тушатся овощи, приготовьте тесто: смешайте чечевичную муку, овсяные хлопья, цельнозерновую муку, соль, перец и травы. Добавьте яйцо и оливковое масло.",
+                    "Вымесите тесто, постепенно подливая немного воды до образования гладкого нелипкого шара.",
+                    "Раскатайте тесто на пергаменте в круг толщиной 3–5 мм по размеру формы для киша. Переложите в форму и предварительно выпекайте 10 минут при 180°C.",
+                    "Взбейте яйца со сметаной (или соевыми сливками), молоком и специями.",
+                    "Смажьте дно подпечённой основы горчицей, выложите карамелизированный шалот, затем овощи (слив лишнюю жидкость) и вяленые томаты. Залейте яичной смесью.",
+                    "По желанию разложите сверху кусочки козьего сыра. Выпекайте 25–35 минут при 180°C до румяной корочки. Украсьте свежим базиликом."
+                ]
+            },
+            {
+                id: "ibu-14",
+                title: "Овощной рёшти с яичницей",
+                category: "bonus",
+                stage: "Бонус: Лена Хекки-Гросс (Швейцария, комитет IBU)",
+                countryFlag: "🇨🇭",
+                prepTime: 60,
+                baseServings: 4,
+                nutritionPerServing: { kcal: 488, protein: 23, fat: 12, carbs: 70 },
+                description: "Авторская вариация швейцарской классики от призёра Кубка мира Лены Хекки-Гросс: запечённый в духовке рёшти из сезонных овощей, батата и зернёного творога с глазуньей.",
+                tip: "Зернёный творог (коттедж чиз) прямо в тесте для рёшти делает блюдо сочным и добавляет легкоусвояемый белок, а сочетание батата и овощей отлично согревает после зимней тренировки.",
+                accentColor: "from-red-600 to-orange-600",
+                ingredients: [
+                    { group: "Овощной рёшти", amount: 1000, unit: "г", name: "овощного микса (морковь, тыква, лук-порей, цукини — крупно натереть или тонко нашинковать)" },
+                    { group: "Овощной рёшти", amount: 400, unit: "г", name: "батата или картофеля, крупно натёртого" },
+                    { group: "Овощной рёшти", amount: 200, unit: "г", name: "зернёного творога (коттедж чиз)" },
+                    { group: "Овощной рёшти", amount: 1, unit: "пучок", name: "шнитт-лука, мелко нарезанного" },
+                    { group: "Овощной рёшти", amount: 3, unit: "ст. л.", name: "оливкового масла" },
+                    { group: "Овощной рёшти", amount: 0, unit: "по вкусу", name: "соль, чёрный перец, сладкая паприка" },
+                    { group: "Для подачи", amount: 4, unit: "шт.", name: "яйца" },
+                    { group: "Для подачи", amount: 0, unit: "по вкусу", name: "кусочек сливочного масла, свежая зелень и цельнозерновой хлеб" }
+                ],
+                steps: [
+                    "Разогрейте духовку до 200°C (режим конвекции) или 220°C (верх/низ).",
+                    "В большой миске тщательно смешайте натёртые овощи, батат (или картофель), зернёный творог, мелко нарезанный шнитт-лук, специи и оливковое масло.",
+                    "Выложите овощную массу на противень, застеленный пергаментом, сформируйте ровный пласт (пирог) и слегка уплотните лопаткой.",
+                    "Разложите сверху несколько маленьких кусочков сливочного масла и запекайте в середине духовки 30–35 минут до румяной корочки.",
+                    "Незадолго до готовности рёшти пожарьте на сливочном масле 4 яйца (глазуньей), посолите и поперчите.",
+                    "Достаньте рёшти из духовки, разрежьте на 4 порции, выложите на тёплые тарелки, сверху положите по жареному яйцу и посыпьте свежей зеленью."
+                ]
+            },
+            {
+                id: "ibu-15",
+                title: "Чечевичный бургер",
+                category: "bonus",
+                stage: "Бонус: Юдит Хаудум (Спортивный нутрициолог)",
+                countryFlag: "🇦🇹",
+                prepTime: 45,
+                baseServings: 5,
+                nutritionPerServing: { kcal: 383, protein: 17, fat: 6.5, carbs: 64 },
+                description: "Рецепт от главного нутрициолога Австрийской лыжной ассоциации Юдит Хаудум: сочные котлеты из чечевицы, свёклы и цукини с низким содержанием жиров.",
+                tip: "Богат клетчаткой, полифенолами и медленными углеводами при минимуме жиров (всего 6.5 г!). Котлеты можно заготовить впрок на несколько дней. Для повышения белка замените свёклу на тофу или добавьте сыр фета.",
+                accentColor: "from-rose-700 to-purple-900",
+                ingredients: [
+                    { group: "Чечевичные котлеты", amount: 3, unit: "стакана", name: "варёной или консервированной чечевицы (промытой и обсушенной)" },
+                    { group: "Чечевичные котлеты", amount: 2, unit: "ч. л.", name: "порошка чили (или паприки)" },
+                    { group: "Чечевичные котлеты", amount: 1, unit: "шт.", name: "небольшой цукини, мелко нарезанный" },
+                    { group: "Чечевичные котлеты", amount: 1, unit: "шт.", name: "небольшая свёкла, очищенная и нарезанная мелким кубиком" },
+                    { group: "Чечевичные котлеты", amount: 0.5, unit: "стакана", name: "мелко нарезанного красного лука" },
+                    { group: "Чечевичные котлеты", amount: 0.5, unit: "стакана", name: "панировочных сухарей со специями" },
+                    { group: "Чечевичные котлеты", amount: 1, unit: "шт.", name: "яйцо, слегка взбитое" },
+                    { group: "Чечевичные котлеты", amount: 0.25, unit: "ч. л.", name: "соли" },
+                    { group: "Чечевичные котлеты", amount: 0.25, unit: "ч. л.", name: "чёрного перца" },
+                    { group: "Подача", amount: 2.5, unit: "ст. л.", name: "рубленых орехов (2–3 ст. л. для хруста)" },
+                    { group: "Подача", amount: 5, unit: "шт.", name: "цельнозерновых булочек для бургеров или средних картофелин (для долек)" },
+                    { group: "Подача", amount: 0, unit: "по вкусу", name: "оливковое/рапсовое масло для жарки, листья салата, томаты, лук" }
+                ],
+                steps: [
+                    "Выложите половину чечевицы (1.5 стакана) в глубокую миску и хорошо разомните вилкой или толкушкой для картофеля.",
+                    "Добавьте оставшуюся целую чечевицу, мелко нарезанные цукини, свёклу, красный лук, панировочные сухари, яйцо и специи. Тщательно перемешайте массу.",
+                    "Сформируйте 5 плотных котлет (примерно по ⅓ стакана массы на каждую котлету).",
+                    "Разогрейте антипригарную сковороду на среднем огне, слегка смазав её растительным маслом.",
+                    "Обжаривайте чечевичные котлеты, переворачивая каждые 2–3 минуты, до образования аппетитной румяной корочки с обеих сторон.",
+                    "Подавайте в тёплых булочках с листьями салата, ломтиками томата и рублеными орехами (или с запечёнными картофельными дольками)."
+                ]
+            },
+            {
+                id: "ibu-16",
+                title: "Веганский рамен с хрустящим тофу",
+                category: "bonus",
+                stage: "Бонус: Команда устойчивого развития IBU",
+                countryFlag: "🌍",
+                prepTime: 50,
+                baseServings: 4,
+                nutritionPerServing: { kcal: 696, protein: 39, fat: 31, carbs: 65 },
+                description: "Насыщенный, пряный зимний рамен на кокосово-ореховом мисо-бульоне с рисовыми макаронами, хрустящим глазированным тофу и капустой пак-чой.",
+                tip: "Чемпион по содержанию растительного белка в книге (39 г на порцию!) при отличном балансе энергии и электролитов после соревнований на морозе.",
+                accentColor: "from-emerald-700 to-cyan-900",
+                ingredients: [
+                    { group: "Пряный бульон", amount: 4, unit: "зубчика", name: "чеснока" },
+                    { group: "Пряный бульон", amount: 1, unit: "ст. л.", name: "тёртого свежего имбиря" },
+                    { group: "Пряный бульон", amount: 1, unit: "пучок", name: "зелёного лука" },
+                    { group: "Пряный бульон", amount: 200, unit: "г", name: "свежих грибов (шиитаке или шампиньонов)" },
+                    { group: "Пряный бульон", amount: 1, unit: "ч. л.", name: "масла чили (или красного перца чили)" },
+                    { group: "Пряный бульон", amount: 1, unit: "ч. л.", name: "куркумы" },
+                    { group: "Пряный бульон", amount: 1, unit: "ч. л.", name: "мисо-пасты" },
+                    { group: "Пряный бульон", amount: 1, unit: "ч. л.", name: "чёрного перца" },
+                    { group: "Пряный бульон", amount: 1, unit: "ст. л.", name: "кунжутного масла" },
+                    { group: "Пряный бульон", amount: 1, unit: "ст. л.", name: "соевого соуса" },
+                    { group: "Пряный бульон", amount: 1, unit: "ст. л.", name: "арахисовой пасты" },
+                    { group: "Пряный бульон", amount: 1500, unit: "мл", name: "овощного бульона" },
+                    { group: "Пряный бульон", amount: 200, unit: "мл", name: "кокосового молока" },
+                    { group: "Пряный бульон", amount: 1, unit: "шт.", name: "лайм (сок)" },
+                    { group: "Глазированный тофу", amount: 1, unit: "блок", name: "твёрдого тофу (ок. 400 г), нарезанного кубиками" },
+                    { group: "Глазированный тофу", amount: 2, unit: "зубчика", name: "чеснока" },
+                    { group: "Глазированный тофу", amount: 2, unit: "ст. л.", name: "кунжутного масла" },
+                    { group: "Глазированный тофу", amount: 3, unit: "ст. л.", name: "соевого соуса с пониженным содержанием соли" },
+                    { group: "Глазированный тофу", amount: 1, unit: "ст. л.", name: "кленового сиропа" },
+                    { group: "Для подачи", amount: 4, unit: "порции", name: "рисовой лапши" },
+                    { group: "Для подачи", amount: 0, unit: "по вкусу", name: "капуста пак-чой, обжаренный кунжут, свежая кинза" }
+                ],
+                steps: [
+                    "Бульон: Мелко нарубите чеснок, имбирь, чили и зелёный лук, обжарьте в 1–2 ст. л. кунжутного масла до появления яркого аромата. Через пару минут добавьте нарезанные ломтиками грибы.",
+                    "Влейте овощной бульон, добавьте мисо-пасту и арахисовую пасту, хорошо размешайте до растворения, затем влейте кокосовое молоко.",
+                    "Приправьте соевым соусом, куркумой и чёрным перцем. Томите на слабом огне 15–20 минут, в конце добавьте свежевыжатый сок лайма.",
+                    "Глазированный тофу: Смешайте измельчённый чеснок, кунжутное масло, соевый соус и кленовый сироп. Замаринуйте кубики тофу на 10 минут, затем обжарьте на сковороде до хрустящей карамельной корочки.",
+                    "Отварите рисовую лапшу согласно инструкции. Капусту пак-чой разрежьте пополам, быстро обжарьте на сковороде с каплей масла и соли, затем нарежьте.",
+                    "Соберите рамен в глубоких пиалах: выложите рисовую лапшу, залейте горячим ароматным бульоном, сверху выложите хрустящий тофу, пак-чой, кунжут и свежую кинзу."
+                ]
+            }
+        ];
+
+        // ============================================================================
+        // 2. СОСТОЯНИЕ ПРИЛОЖЕНИЯ И РАБОТА С LOCALSTORAGE
+        // ============================================================================
+        const STORAGE_KEY = 'ibu_cookbook_recipes_v1';
+
+        let recipes = [];
+        let state = {
+            view: 'catalog', // 'catalog' | 'detail'
+            selectedRecipeId: null,
+            isEditing: false,
+            // Фильтры каталога
+            searchQuery: '',
+            categoryFilter: 'all', // 'all' | 'world_cup' | 'championship' | 'bonus' | 'custom'
+            sortBy: 'default', // 'default' | 'kcal_asc' | 'kcal_desc' | 'time_asc' | 'protein_desc'
+            // Состояние просмотра конкретного рецепта
+            currentServings: 4,
+            checkedIngredients: {} // { "ibu-1_0": true }
+        };
+
+        // Загрузка рецептов из localStorage или инициализация оригиналами
+        function loadRecipes() {
+            try {
+                const saved = localStorage.getItem(STORAGE_KEY);
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    if (Array.isArray(parsed) && parsed.length > 0) {
+                        recipes = parsed;
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.error("Ошибка чтения localStorage:", e);
+            }
+            recipes = JSON.parse(JSON.stringify(ORIGINAL_RECIPES));
+            saveRecipesToStorage();
+        }
+
+        function saveRecipesToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(recipes));
+            } catch (e) {
+                console.error("Ошибка записи в localStorage:", e);
+                showToast("Не удалось сохранить в память браузера");
+            }
+        }
+
+        // Проверка, был ли оригинальный рецепт изменён пользователем
+        function isRecipeModified(recipe) {
+            const orig = ORIGINAL_RECIPES.find(r => r.id === recipe.id);
+            if (!orig) return false; // Пользовательский рецепт
+            return JSON.stringify(orig) !== JSON.stringify(recipe);
+        }
+
+        function isCustomRecipe(recipe) {
+            return !ORIGINAL_RECIPES.some(r => r.id === recipe.id);
+        }
+
+        // ============================================================================
+        // 3. ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ (ФОРМАТИРОВАНИЕ ЧИСЕЛ, УВЕДОМЛЕНИЯ, МОДАЛКИ)
+        // ============================================================================
+        function formatAmount(num) {
+            if (num === 0 || num === null || num === undefined || isNaN(num)) return '';
+            // Округляем до 1 или 2 знаков, убирая лишние нули
+            const rounded = Math.round(num * 100) / 100;
+            return Number.isInteger(rounded) ? rounded.toString() : rounded.toFixed(1).replace(/\.0$/, '');
+        }
+
+        function formatMacro(num) {
+            if (isNaN(num)) return '0';
+            const rounded = Math.round(num * 10) / 10;
+            return Number.isInteger(rounded) ? rounded.toString() : rounded.toFixed(1);
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toastNotification');
+            const text = document.getElementById('toastText');
+            text.textContent = message;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2800);
+        }
+
+        function showModal({ title, message, confirmText = 'Подтвердить', confirmClass = 'bg-ibu-navy text-white hover:bg-ibu-slate', onConfirm }) {
+            const modal = document.getElementById('customModal');
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalMessage').textContent = message;
+            const actions = document.getElementById('modalActions');
+            actions.innerHTML = `
+                <button onclick="closeModal()" class="px-4 py-2 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-100 transition-colors">Отмена</button>
+                <button id="modalConfirmBtn" class="px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${confirmClass}">${confirmText}</button>
+            `;
+            document.getElementById('modalConfirmBtn').onclick = () => {
+                closeModal();
+                if (onConfirm) onConfirm();
+            };
+            modal.classList.remove('hidden');
+        }
+
+        function closeModal() {
+            document.getElementById('customModal').classList.add('hidden');
+        }
+
+        function toggleBackupMenu() {
+            const dd = document.getElementById('backupDropdown');
+            dd.classList.toggle('hidden');
+        }
+
+        // Закрытие дропдауна при клике вне него
+        document.addEventListener('click', (e) => {
+            const btn = document.getElementById('backupMenuBtn');
+            const dd = document.getElementById('backupDropdown');
+            if (btn && dd && !btn.contains(e.target) && !dd.contains(e.target)) {
+                dd.classList.add('hidden');
+            }
+        });
+
+        // ============================================================================
+        // 4. ЭКСПОРТ, ИМПОРТ И СБРОС ДАННЫХ
+        // ============================================================================
+        function exportRecipesJSON() {
+            document.getElementById('backupDropdown').classList.add('hidden');
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(recipes, null, 2));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            const dateStr = new Date().toISOString().slice(0, 10);
+            downloadAnchor.setAttribute("download", `ibu-cookbook-backup-${dateStr}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+            showToast("Резервная копия книги скачана (JSON)");
+        }
+
+        function importRecipesJSON(event) {
+            document.getElementById('backupDropdown').classList.add('hidden');
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (!Array.isArray(imported) || !imported[0]?.title || !imported[0]?.ingredients) {
+                        throw new Error("Неверный формат файла рецептов");
+                    }
+                    recipes = imported;
+                    saveRecipesToStorage();
+                    navigateToCatalog();
+                    showToast(`Успешно загружено рецептов: ${recipes.length}`);
+                } catch (err) {
+                    showModal({
+                        title: "Ошибка импорта",
+                        message: "Выбранный файл не соответствует формату кулинарной книги IBU JSON.",
+                        confirmText: "Понятно"
+                    });
+                }
+                event.target.value = '';
+            };
+            reader.readAsText(file);
+        }
+
+        function confirmResetAllBook() {
+            document.getElementById('backupDropdown').classList.add('hidden');
+            showModal({
+                title: "Сбросить всю кулинарную книгу?",
+                message: "Все ваши правки и добавленные рецепты будут удалены, а книга вернётся к 16 оригинальным рецептам IBU Cookbook.",
+                confirmText: "Сбросить всё",
+                confirmClass: "bg-rose-600 text-white hover:bg-rose-700",
+                onConfirm: () => {
+                    recipes = JSON.parse(JSON.stringify(ORIGINAL_RECIPES));
+                    saveRecipesToStorage();
+                    navigateToCatalog();
+                    showToast("Книга восстановлена к оригиналу IBU");
+                }
+            });
+        }
+
+        // ============================================================================
+        // 5. НАВИГАЦИЯ И РЕНДЕРИНГ КАТАЛОГА
+        // ============================================================================
+        function navigateToCatalog() {
+            state.view = 'catalog';
+            state.selectedRecipeId = null;
+            state.isEditing = false;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            render();
+        }
+
+        function openRecipe(id, startInEditMode = false) {
+            const recipe = recipes.find(r => r.id === id);
+            if (!recipe) return;
+            state.view = 'detail';
+            state.selectedRecipeId = id;
+            state.isEditing = startInEditMode;
+            state.currentServings = recipe.baseServings || 4;
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            render();
+        }
+
+        function openNewRecipeModal() {
+            const newId = 'custom-' + Date.now();
+            const newRecipe = {
+                id: newId,
+                title: "Новый рецепт спортсмена",
+                category: "custom",
+                stage: "Мой авторский рецепт",
+                countryFlag: "🏅",
+                prepTime: 30,
+                baseServings: 2,
+                nutritionPerServing: { kcal: 450, protein: 25, fat: 12, carbs: 55 },
+                description: "Краткое описание блюда и его пользы для тренировок и восстановления.",
+                tip: "Совет по приготовлению или замене ингредиентов.",
+                accentColor: "from-ibu-navy to-ibu-pine",
+                ingredients: [
+                    { group: "Основные ингредиенты", amount: 200, unit: "г", name: "основного продукта" },
+                    { group: "Основные ингредиенты", amount: 1, unit: "ст. л.", name: "оливкового масла" }
+                ],
+                steps: [
+                    "Подготовьте все ингредиенты.",
+                    "Приготовьте блюдо и подавайте к столу."
+                ]
+            };
+            recipes.unshift(newRecipe);
+            saveRecipesToStorage();
+            openRecipe(newId, true);
+            showToast("Создан шаблон нового рецепта");
+        }
+
+        function getCategoryBadge(category) {
+            switch (category) {
+                case 'world_cup':
+                    return { label: 'Этап Кубка мира', classes: 'bg-sky-100 text-sky-800 border-sky-200' };
+                case 'championship':
+                    return { label: 'Чемпионат мира', classes: 'bg-amber-100 text-amber-800 border-amber-200' };
+                case 'bonus':
+                    return { label: 'Бонус от атлетов', classes: 'bg-emerald-100 text-emerald-800 border-emerald-200' };
+                default:
+                    return { label: 'Мой рецепт', classes: 'bg-purple-100 text-purple-800 border-purple-200' };
+            }
+        }
+
+        function renderCatalog() {
+            const container = document.getElementById('appContainer');
+
+            // Фильтрация
+            let filtered = recipes.filter(r => {
+                const matchesCat = state.categoryFilter === 'all' || r.category === state.categoryFilter;
+                const q = state.searchQuery.trim().toLowerCase();
+                if (!q) return matchesCat;
+                const inTitle = r.title.toLowerCase().includes(q);
+                const inStage = r.stage.toLowerCase().includes(q);
+                const inDesc = r.description.toLowerCase().includes(q);
+                const inIng = r.ingredients.some(i => i.name.toLowerCase().includes(q));
+                return matchesCat && (inTitle || inStage || inDesc || inIng);
+            });
+
+            // Сортировка
+            if (state.sortBy === 'kcal_asc') {
+                filtered.sort((a, b) => a.nutritionPerServing.kcal - b.nutritionPerServing.kcal);
+            } else if (state.sortBy === 'kcal_desc') {
+                filtered.sort((a, b) => b.nutritionPerServing.kcal - a.nutritionPerServing.kcal);
+            } else if (state.sortBy === 'time_asc') {
+                filtered.sort((a, b) => a.prepTime - b.prepTime);
+            } else if (state.sortBy === 'protein_desc') {
+                filtered.sort((a, b) => b.nutritionPerServing.protein - a.nutritionPerServing.protein);
+            }
+
+            const categories = [
+                { id: 'all', label: `Все рецепты (${recipes.length})` },
+                { id: 'world_cup', label: 'Этапы Кубка мира' },
+                { id: 'championship', label: 'Чемпионаты мира' },
+                { id: 'bonus', label: 'Бонус от спортсменов' },
+                ...(recipes.some(r => r.category === 'custom') ? [{ id: 'custom', label: 'Мои рецепты' }] : [])
+            ];
+
+            container.innerHTML = `
+                <div class="animate-fade-in">
+                    <!-- Приветственный баннер в стиле зимнего биатлонного стадиона -->
+                    <div class="relative overflow-hidden rounded-3xl bg-gradient-to-r from-ibu-navy via-ibu-slate to-[#174666] text-white p-6 sm:p-8 mb-6 shadow-xl">
+                        <div class="relative z-10 max-w-3xl">
+                            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 text-ibu-lime text-xs font-bold tracking-wide uppercase mb-3">
+                                <span>❄️ Официальная коллекция IBU</span>
+                            </div>
+                            <h1 class="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight mb-2.5">
+                                Кулинарная книга чемпионов биатлона
+                            </h1>
+                            <p class="text-slate-200 text-sm sm:text-base leading-relaxed">
+                                Сбалансированные рецепты со всех этапов Кубка мира, Чемпионата мира в Ленцерхайде и личных кухонь атлетов. Выбирайте блюдо, пересчитывайте граммовки под нужное число порций и адаптируйте рецепты под свои тренировки.
+                            </p>
+                        </div>
+                        <!-- Декоративная мишень на фоне -->
+                        <div class="hidden lg:flex absolute right-8 top-1/2 -translate-y-1/2 items-center gap-3 opacity-15 pointer-events-none">
+                            <div class="w-20 h-20 rounded-full border-4 border-white flex items-center justify-center"><div class="w-10 h-10 rounded-full bg-white"></div></div>
+                            <div class="w-20 h-20 rounded-full border-4 border-white flex items-center justify-center"><div class="w-10 h-10 rounded-full bg-white"></div></div>
+                            <div class="w-20 h-20 rounded-full border-4 border-ibu-lime flex items-center justify-center"><div class="w-10 h-10 rounded-full bg-ibu-lime"></div></div>
+                        </div>
+                    </div>
+
+                    <!-- Панель поиска и фильтров -->
+                    <div class="bg-white rounded-2xl p-4 sm:p-5 shadow-sm border border-slate-200/80 mb-6 space-y-4">
+                        <div class="flex flex-col md:flex-row gap-3">
+                            <!-- Поиск -->
+                            <div class="relative flex-grow">
+                                <svg class="w-5 h-5 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                                <input 
+                                    type="text" 
+                                    id="searchInput"
+                                    value="${state.searchQuery.replace(/"/g, '&quot;')}"
+                                    oninput="handleSearchInput(this.value)"
+                                    placeholder="Поиск по названию, этапу (например, Анси) или ингредиенту (тофу, чечевица, грибы)..." 
+                                    class="w-full pl-11 pr-10 py-2.5 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-ibu-navy/20 focus:border-ibu-navy transition-all"
+                                >
+                                ${state.searchQuery ? `
+                                    <button onclick="handleSearchInput('')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                    </button>
+                                ` : ''}
+                            </div>
+
+                            <!-- Сортировка по КБЖУ и времени -->
+                            <div class="flex items-center gap-2 shrink-0">
+                                <label for="sortSelect" class="text-xs font-semibold text-slate-500 whitespace-nowrap">Сортировка:</label>
+                                <select id="sortSelect" onchange="handleSortChange(this.value)" class="bg-slate-50 border border-slate-200 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-700 focus:outline-none focus:border-ibu-navy">
+                                    <option value="default" ${state.sortBy === 'default' ? 'selected' : ''}>По порядку в книге IBU</option>
+                                    <option value="kcal_asc" ${state.sortBy === 'kcal_asc' ? 'selected' : ''}>Сначала менее калорийные</option>
+                                    <option value="kcal_desc" ${state.sortBy === 'kcal_desc' ? 'selected' : ''}>Сначала самые сытные (ккал)</option>
+                                    <option value="protein_desc" ${state.sortBy === 'protein_desc' ? 'selected' : ''}>Максимум белка (г)</option>
+                                    <option value="time_asc" ${state.sortBy === 'time_asc' ? 'selected' : ''}>Быстрее всего приготовить</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <!-- Вкладки категорий -->
+                        <div class="flex flex-wrap items-center gap-2 pt-1">
+                            ${categories.map(cat => `
+                                <button 
+                                    onclick="handleCategoryFilter('${cat.id}')"
+                                    class="px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold transition-all ${
+                                        state.categoryFilter === cat.id 
+                                        ? 'bg-ibu-navy text-white shadow-sm' 
+                                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200/70'
+                                    }"
+                                >
+                                    ${cat.label}
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Сетка карточек рецептов -->
+                    ${filtered.length === 0 ? `
+                        <div class="bg-white rounded-3xl p-12 text-center border border-slate-200">
+                            <div class="text-4xl mb-3">🎿</div>
+                            <h3 class="text-lg font-bold text-slate-800 mb-1">Рецепты не найдены</h3>
+                            <p class="text-sm text-slate-500 mb-4">Попробуйте изменить поисковый запрос или сбросить фильтры.</p>
+                            <button onclick="resetFilters()" class="px-4 py-2 bg-ibu-navy text-white text-sm font-semibold rounded-xl hover:bg-ibu-slate transition-colors">Сбросить фильтры</button>
+                        </div>
+                    ` : `
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                            ${filtered.map(recipe => renderRecipeCard(recipe)).join('')}
+                        </div>
+                    `}
+                </div>
+            `;
+        }
+
+        function renderRecipeCard(recipe) {
+            const badge = getCategoryBadge(recipe.category);
+            const modified = isRecipeModified(recipe);
+            const custom = isCustomRecipe(recipe);
+
+            return `
+                <article onclick="openRecipe('${recipe.id}', false)" class="group bg-white rounded-3xl border border-slate-200/90 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-200 flex flex-col overflow-hidden cursor-pointer">
+                    <!-- Верхняя цветовая полоса / шапка карточки -->
+                    <div class="bg-gradient-to-r ${recipe.accentColor || 'from-ibu-navy to-ibu-slate'} p-4 text-white relative">
+                        <div class="flex items-start justify-between gap-2">
+                            <span class="inline-flex items-center gap-1.5 text-xs font-semibold bg-black/25 backdrop-blur-sm px-2.5 py-1 rounded-lg">
+                                <span>${recipe.countryFlag || '🏅'}</span>
+                                <span class="truncate max-w-[210px]">${recipe.stage}</span>
+                            </span>
+                            <div class="flex items-center gap-1 shrink-0">
+                                ${modified ? `<span title="Рецепт отредактирован вами" class="bg-amber-400 text-ibu-navy text-[10px] font-extrabold px-2 py-0.5 rounded-md uppercase">Изменён</span>` : ''}
+                                ${custom ? `<span class="bg-ibu-lime text-ibu-navy text-[10px] font-extrabold px-2 py-0.5 rounded-md uppercase">Свой</span>` : ''}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Контент карточки -->
+                    <div class="p-5 flex-grow flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between gap-2 mb-2">
+                                <span class="text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${badge.classes}">${badge.label}</span>
+                                <div class="flex items-center gap-3 text-xs font-semibold text-slate-500">
+                                    <span class="flex items-center gap-1" title="Время приготовления">
+                                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 6v6l4 2"/></svg>
+                                        ${recipe.prepTime} мин
+                                    </span>
+                                    <span class="flex items-center gap-1" title="Базовое количество порций">
+                                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                        ${recipe.baseServings} порц.
+                                    </span>
+                                </div>
+                            </div>
+
+                            <h2 class="text-lg font-extrabold text-slate-900 group-hover:text-ibu-navy transition-colors leading-snug mb-2">
+                                ${recipe.title}
+                            </h2>
+
+                            <p class="text-xs sm:text-sm text-slate-600 line-clamp-2 mb-4 leading-relaxed">
+                                ${recipe.description}
+                            </p>
+                        </div>
+
+                        <!-- Плашка КБЖУ на 1 порцию -->
+                        <div class="pt-3 border-t border-slate-100">
+                            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">На 1 порцию:</div>
+                            <div class="grid grid-cols-4 gap-1.5 text-center font-mono">
+                                <div class="bg-slate-50 rounded-xl py-1.5 px-1 border border-slate-100">
+                                    <div class="text-xs sm:text-sm font-bold text-ibu-navy">${recipe.nutritionPerServing.kcal}</div>
+                                    <div class="text-[10px] text-slate-500 font-sans">ккал</div>
+                                </div>
+                                <div class="bg-emerald-50/70 rounded-xl py-1.5 px-1 border border-emerald-100">
+                                    <div class="text-xs sm:text-sm font-bold text-emerald-800">${recipe.nutritionPerServing.protein}г</div>
+                                    <div class="text-[10px] text-emerald-600 font-sans">Белки</div>
+                                </div>
+                                <div class="bg-amber-50/70 rounded-xl py-1.5 px-1 border border-amber-100">
+                                    <div class="text-xs sm:text-sm font-bold text-amber-800">${recipe.nutritionPerServing.fat}г</div>
+                                    <div class="text-[10px] text-amber-600 font-sans">Жиры</div>
+                                </div>
+                                <div class="bg-sky-50/70 rounded-xl py-1.5 px-1 border border-sky-100">
+                                    <div class="text-xs sm:text-sm font-bold text-sky-800">${recipe.nutritionPerServing.carbs}г</div>
+                                    <div class="text-[10px] text-sky-600 font-sans">Углев.</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            `;
+        }
+
+        function handleSearchInput(val) {
+            state.searchQuery = val;
+            renderCatalog();
+            // Восстанавливаем фокус в поле поиска
+            const input = document.getElementById('searchInput');
+            if (input) {
+                input.focus();
+                input.setSelectionRange(val.length, val.length);
+            }
+        }
+
+        function handleCategoryFilter(catId) {
+            state.categoryFilter = catId;
+            renderCatalog();
+        }
+
+        function handleSortChange(val) {
+            state.sortBy = val;
+            renderCatalog();
+        }
+
+        function resetFilters() {
+            state.searchQuery = '';
+            state.categoryFilter = 'all';
+            state.sortBy = 'default';
+            renderCatalog();
+        }
+
+        // ============================================================================
+        // 6. ДЕТАЛЬНЫЙ ПРОСМОТР РЕЦЕПТА (ЧТЕНИЕ / КАЛЬКУЛЯТОР ПОРЦИЙ / ГОТОВКА)
+        // ============================================================================
+        function renderRecipeDetail() {
+            const recipe = recipes.find(r => r.id === state.selectedRecipeId);
+            if (!recipe) {
+                navigateToCatalog();
+                return;
+            }
+
+            if (state.isEditing) {
+                renderRecipeEditor(recipe);
+                return;
+            }
+
+            const container = document.getElementById('appContainer');
+            const badge = getCategoryBadge(recipe.category);
+            const modified = isRecipeModified(recipe);
+            const custom = isCustomRecipe(recipe);
+
+            // Коэффициент пересчета граммовок
+            const baseServ = recipe.baseServings || 1;
+            const ratio = state.currentServings / baseServ;
+
+            // Группировка ингредиентов по подгруппам
+            const groupedIngredients = [];
+            const groupMap = new Map();
+            recipe.ingredients.forEach((ing, idx) => {
+                const grpName = ing.group && ing.group.trim() ? ing.group.trim() : 'Ингредиенты';
+                if (!groupMap.has(grpName)) {
+                    const groupObj = { name: grpName, items: [] };
+                    groupMap.set(grpName, groupObj);
+                    groupedIngredients.push(groupObj);
+                }
+                groupMap.get(grpName).items.push({ ...ing, originalIndex: idx });
+            });
+
+            // Расчет КБЖУ на выбранное количество порций
+            const totalKcal = formatMacro(recipe.nutritionPerServing.kcal * state.currentServings);
+            const totalProtein = formatMacro(recipe.nutritionPerServing.protein * state.currentServings);
+            const totalFat = formatMacro(recipe.nutritionPerServing.fat * state.currentServings);
+            const totalCarbs = formatMacro(recipe.nutritionPerServing.carbs * state.currentServings);
+
+            container.innerHTML = `
+                <div class="animate-fade-in max-w-5xl mx-auto">
+                    <!-- Верхняя панель навигации и действий -->
+                    <div class="flex flex-wrap items-center justify-between gap-3 mb-5 no-print">
+                        <button onclick="navigateToCatalog()" class="inline-flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-ibu-navy bg-white px-4 py-2.5 rounded-xl border border-slate-200 shadow-sm transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+                            <span>Назад к списку рецептов</span>
+                        </button>
+
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button onclick="window.print()" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-slate-700 bg-white hover:bg-slate-50 px-3.5 py-2.5 rounded-xl border border-slate-200 shadow-sm transition-colors" title="Распечатать рецепт">
+                                <svg class="w-4 h-4 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                                <span class="hidden sm:inline">Печать</span>
+                            </button>
+
+                            ${modified ? `
+                                <button onclick="confirmResetSingleRecipe('${recipe.id}')" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-amber-800 bg-amber-50 hover:bg-amber-100 px-3.5 py-2.5 rounded-xl border border-amber-200 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                    <span>Сбросить к оригиналу</span>
+                                </button>
+                            ` : ''}
+
+                            ${custom ? `
+                                <button onclick="confirmDeleteCustomRecipe('${recipe.id}')" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 px-3.5 py-2.5 rounded-xl border border-rose-200 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                    <span>Удалить</span>
+                                </button>
+                            ` : ''}
+
+                            <button onclick="startEditingRecipe()" class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-white bg-ibu-navy hover:bg-ibu-slate px-4 py-2.5 rounded-xl shadow-sm transition-colors">
+                                <svg class="w-4 h-4 text-ibu-lime" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                <span>Редактировать рецепт</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Карточка заголовка рецепта -->
+                    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden mb-6 print-full">
+                        <div class="bg-gradient-to-r ${recipe.accentColor || 'from-ibu-navy to-ibu-slate'} p-6 sm:p-8 text-white">
+                            <div class="flex flex-wrap items-center gap-2.5 mb-3">
+                                <span class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold bg-black/25 backdrop-blur-sm px-3 py-1 rounded-xl">
+                                    <span>${recipe.countryFlag || '🏅'}</span>
+                                    <span>${recipe.stage}</span>
+                                </span>
+                                <span class="text-xs font-bold px-3 py-1 rounded-xl bg-white/15">
+                                    ${badge.label}
+                                </span>
+                                ${modified ? `<span class="text-xs font-extrabold px-2.5 py-1 rounded-xl bg-amber-400 text-ibu-navy">Отредактировано вами</span>` : ''}
+                            </div>
+
+                            <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight mb-3">
+                                ${recipe.title}
+                            </h1>
+
+                            <p class="text-white/90 text-sm sm:text-base max-w-3xl leading-relaxed">
+                                ${recipe.description}
+                            </p>
+                        </div>
+
+                        <!-- Панель параметров: Время, Калькулятор порций и КБЖУ -->
+                        <div class="p-6 sm:p-8 bg-white grid grid-cols-1 lg:grid-cols-12 gap-6 items-center">
+                            <!-- Левая часть: Время и Калькулятор порций -->
+                            <div class="lg:col-span-5 flex flex-wrap sm:flex-nowrap items-center gap-4">
+                                <div class="bg-slate-50 border border-slate-200/80 rounded-2xl p-3.5 flex items-center gap-3 flex-1">
+                                    <div class="w-10 h-10 rounded-xl bg-ibu-navy/10 text-ibu-navy flex items-center justify-center shrink-0">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path stroke-linecap="round" d="M12 6v6l4 2"/></svg>
+                                    </div>
+                                    <div>
+                                        <div class="text-[11px] font-bold uppercase text-slate-400">Время</div>
+                                        <div class="text-base font-extrabold text-slate-900">${recipe.prepTime} мин</div>
+                                    </div>
+                                </div>
+
+                                <!-- Калькулятор порций -->
+                                <div class="bg-ibu-lime/15 border border-ibu-lime/50 rounded-2xl p-3.5 flex-1">
+                                    <div class="text-[11px] font-bold uppercase text-ibu-pine mb-1 flex items-center justify-between">
+                                        <span>Порций</span>
+                                        ${state.currentServings !== recipe.baseServings ? `<button onclick="changeServings(${recipe.baseServings})" class="underline text-[10px] hover:text-ibu-navy no-print">база: ${recipe.baseServings}</button>` : ''}
+                                    </div>
+                                    <div class="flex items-center justify-between gap-2">
+                                        <button onclick="changeServings(${state.currentServings - 1})" class="w-8 h-8 rounded-xl bg-white hover:bg-ibu-navy hover:text-white text-ibu-navy font-extrabold shadow-sm border border-slate-200 transition-colors flex items-center justify-center no-print">−</button>
+                                        <input 
+                                            type="number" 
+                                            min="1" 
+                                            max="100" 
+                                            value="${state.currentServings}" 
+                                            onchange="changeServings(parseInt(this.value) || 1)"
+                                            class="w-12 text-center font-mono text-lg font-extrabold text-ibu-navy bg-transparent focus:outline-none"
+                                        >
+                                        <button onclick="changeServings(${state.currentServings + 1})" class="w-8 h-8 rounded-xl bg-white hover:bg-ibu-navy hover:text-white text-ibu-navy font-extrabold shadow-sm border border-slate-200 transition-colors flex items-center justify-center no-print">+</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Правая часть: КБЖУ на 1 порцию + Итого на выбранные порции -->
+                            <div class="lg:col-span-7">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-xs font-bold uppercase tracking-wider text-slate-500">Пищевая ценность (на 1 порцию)</span>
+                                    <span class="text-xs font-semibold text-ibu-pine bg-emerald-50 px-2.5 py-0.5 rounded-lg border border-emerald-200">
+                                        Всего на ${state.currentServings} порц.: ${totalKcal} ккал (Б: ${totalProtein}г • Ж: ${totalFat}г • У: ${totalCarbs}г)
+                                    </span>
+                                </div>
+                                <div class="grid grid-cols-4 gap-2.5 font-mono">
+                                    <div class="bg-ibu-navy text-white rounded-2xl p-3 text-center shadow-sm">
+                                        <div class="text-lg sm:text-xl font-extrabold text-ibu-lime">${recipe.nutritionPerServing.kcal}</div>
+                                        <div class="text-[11px] text-slate-300 font-sans font-medium">Ккал</div>
+                                    </div>
+                                    <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-3 text-center">
+                                        <div class="text-lg sm:text-xl font-extrabold text-emerald-800">${recipe.nutritionPerServing.protein}г</div>
+                                        <div class="text-[11px] text-emerald-700 font-sans font-semibold">Белки</div>
+                                    </div>
+                                    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-3 text-center">
+                                        <div class="text-lg sm:text-xl font-extrabold text-amber-800">${recipe.nutritionPerServing.fat}г</div>
+                                        <div class="text-[11px] text-amber-700 font-sans font-semibold">Жиры</div>
+                                    </div>
+                                    <div class="bg-sky-50 border border-sky-200 rounded-2xl p-3 text-center">
+                                        <div class="text-lg sm:text-xl font-extrabold text-sky-800">${recipe.nutritionPerServing.carbs}г</div>
+                                        <div class="text-[11px] text-sky-700 font-sans font-semibold">Углеводы</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Двухколоночный макет: Ингредиенты (слева) + Шаги приготовления (справа) -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                        <!-- КОЛОНКА ИНГРЕДИЕНТОВ -->
+                        <div class="lg:col-span-5 space-y-5">
+                            <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200">
+                                <div class="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
+                                    <div>
+                                        <h2 class="text-lg font-extrabold text-slate-900">Ингредиенты</h2>
+                                        <p class="text-xs text-slate-500">Граммовки рассчитаны на <strong class="text-ibu-navy">${state.currentServings} порц.</strong></p>
+                                    </div>
+                                    <button onclick="clearIngredientChecks('${recipe.id}')" class="text-xs font-semibold text-slate-400 hover:text-ibu-navy transition-colors no-print" title="Снять все отметки">
+                                        Сбросить галочки
+                                    </button>
+                                </div>
+
+                                <div class="space-y-5">
+                                    ${groupedIngredients.map(group => `
+                                        <div>
+                                            ${groupedIngredients.length > 1 ? `
+                                                <h3 class="text-xs font-extrabold uppercase tracking-wider text-ibu-pine bg-emerald-50/80 px-3 py-1.5 rounded-lg mb-2.5">
+                                                    ${group.name}
+                                                </h3>
+                                            ` : ''}
+                                            <ul class="space-y-2">
+                                                ${group.items.map(item => {
+                                                    const checkKey = `${recipe.id}_${item.originalIndex}`;
+                                                    const isChecked = !!state.checkedIngredients[checkKey];
+                                                    const scaledAmt = item.amount > 0 ? formatAmount(item.amount * ratio) : '';
+                                                    const amountDisplay = scaledAmt ? `${scaledAmt} ${item.unit}` : item.unit;
+
+                                                    return `
+                                                        <li onclick="toggleIngredientCheck('${checkKey}')" class="flex items-start gap-3 p-2 rounded-xl hover:bg-slate-50 cursor-pointer transition-colors select-none ${isChecked ? 'opacity-50' : ''}">
+                                                            <div class="mt-0.5 w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 transition-colors ${isChecked ? 'bg-ibu-pine border-ibu-pine text-white' : 'border-slate-300 bg-white'}">
+                                                                ${isChecked ? `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>` : ''}
+                                                            </div>
+                                                            <div class="text-sm leading-snug flex-grow ${isChecked ? 'line-through text-slate-400' : 'text-slate-700'}">
+                                                                ${amountDisplay ? `<span class="font-mono font-bold text-ibu-navy bg-slate-100 px-1.5 py-0.5 rounded mr-1.5">${amountDisplay}</span>` : ''}
+                                                                <span>${item.name}</span>
+                                                            </div>
+                                                        </li>
+                                                    `;
+                                                }).join('')}
+                                            </ul>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+
+                            <!-- Совет нутрициолога IBU -->
+                            ${recipe.tip ? `
+                                <div class="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-3xl p-5 border border-emerald-200/80 shadow-sm">
+                                    <div class="flex items-center gap-2 text-ibu-pine font-extrabold text-sm mb-2">
+                                        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                        <span>Совет нутрициолога IBU</span>
+                                    </div>
+                                    <p class="text-xs sm:text-sm text-slate-700 leading-relaxed">
+                                        ${recipe.tip}
+                                    </p>
+                                </div>
+                            ` : ''}
+                        </div>
+
+                        <!-- КОЛОНКА ПОШАГОВОГО ПРИГОТОВЛЕНИЯ -->
+                        <div class="lg:col-span-7">
+                            <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200">
+                                <h2 class="text-xl font-extrabold text-slate-900 mb-6 pb-3 border-b border-slate-100 flex items-center gap-2.5">
+                                    <span class="w-8 h-8 rounded-xl bg-ibu-navy text-ibu-lime flex items-center justify-center text-sm font-mono">👨‍🍳</span>
+                                    <span>Пошаговое приготовление</span>
+                                </h2>
+
+                                <ol class="space-y-5">
+                                    ${recipe.steps.map((step, index) => `
+                                        <li class="flex gap-4 group">
+                                            <div class="w-8 h-8 rounded-full bg-ibu-snow border-2 border-ibu-navy text-ibu-navy font-mono font-extrabold text-sm flex items-center justify-center shrink-0 mt-0.5 group-hover:bg-ibu-navy group-hover:text-white transition-colors">
+                                                ${index + 1}
+                                            </div>
+                                            <div class="text-sm sm:text-base text-slate-700 leading-relaxed pt-1">
+                                                ${step}
+                                            </div>
+                                        </li>
+                                    `).join('')}
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function changeServings(newVal) {
+            if (newVal < 1) newVal = 1;
+            if (newVal > 100) newVal = 100;
+            state.currentServings = newVal;
+            renderRecipeDetail();
+        }
+
+        function toggleIngredientCheck(key) {
+            state.checkedIngredients[key] = !state.checkedIngredients[key];
+            renderRecipeDetail();
+        }
+
+        function clearIngredientChecks(recipeId) {
+            Object.keys(state.checkedIngredients).forEach(k => {
+                if (k.startsWith(recipeId + '_')) {
+                    delete state.checkedIngredients[k];
+                }
+            });
+            renderRecipeDetail();
+        }
+
+        function confirmResetSingleRecipe(recipeId) {
+            showModal({
+                title: "Сбросить рецепт к оригиналу IBU?",
+                message: "Ваши изменения в этом рецепте будут отменены, и вернутся исходные граммовки, шаги и КБЖУ из книги IBU.",
+                confirmText: "Сбросить",
+                confirmClass: "bg-amber-600 text-white hover:bg-amber-700",
+                onConfirm: () => {
+                    const orig = ORIGINAL_RECIPES.find(r => r.id === recipeId);
+                    const idx = recipes.findIndex(r => r.id === recipeId);
+                    if (orig && idx !== -1) {
+                        recipes[idx] = JSON.parse(JSON.stringify(orig));
+                        saveRecipesToStorage();
+                        state.currentServings = recipes[idx].baseServings;
+                        renderRecipeDetail();
+                        showToast("Рецепт восстановлен к оригиналу");
+                    }
+                }
+            });
+        }
+
+        function confirmDeleteCustomRecipe(recipeId) {
+            showModal({
+                title: "Удалить этот рецепт?",
+                message: "Рецепт будет безвозвратно удалён из вашей кулинарной книги.",
+                confirmText: "Удалить",
+                confirmClass: "bg-rose-600 text-white hover:bg-rose-700",
+                onConfirm: () => {
+                    recipes = recipes.filter(r => r.id !== recipeId);
+                    saveRecipesToStorage();
+                    navigateToCatalog();
+                    showToast("Рецепт удалён");
+                }
+            });
+        }
+
+        // ============================================================================
+        // 7. РЕЖИМ РЕДАКТИРОВАНИЯ РЕЦЕПТА (ФОРМА С СОХРАНЕНИЕМ В LOCALSTORAGE)
+        // ============================================================================
+        let draftRecipe = null;
+
+        function startEditingRecipe() {
+            const recipe = recipes.find(r => r.id === state.selectedRecipeId);
+            if (!recipe) return;
+            draftRecipe = JSON.parse(JSON.stringify(recipe));
+            state.isEditing = true;
+            renderRecipeDetail();
+        }
+
+        function cancelEditingRecipe() {
+            draftRecipe = null;
+            state.isEditing = false;
+            renderRecipeDetail();
+        }
+
+        function renderRecipeEditor(recipe) {
+            if (!draftRecipe) {
+                draftRecipe = JSON.parse(JSON.stringify(recipe));
+            }
+            const container = document.getElementById('appContainer');
+
+            container.innerHTML = `
+                <div class="animate-fade-in max-w-4xl mx-auto">
+                    <!-- Шапка редактора -->
+                    <div class="bg-ibu-navy text-white rounded-3xl p-5 sm:p-6 mb-6 flex flex-wrap items-center justify-between gap-4 shadow-lg">
+                        <div>
+                            <div class="text-xs font-bold uppercase tracking-wider text-ibu-lime mb-1">Режим редактирования</div>
+                            <h1 class="text-xl sm:text-2xl font-extrabold">Настройка рецепта и граммовок</h1>
+                        </div>
+                        <div class="flex items-center gap-2.5">
+                            <button onclick="cancelEditingRecipe()" class="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-sm font-semibold transition-colors">
+                                Отмена
+                            </button>
+                            <button onclick="saveEditedRecipe()" class="px-5 py-2.5 rounded-xl bg-ibu-lime hover:bg-[#95c94d] text-ibu-navy text-sm font-extrabold shadow-md transition-colors flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                <span>Сохранить изменения</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="space-y-6">
+                        <!-- Блок 1: Основная информация -->
+                        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+                            <h2 class="text-base font-extrabold text-slate-900 border-b border-slate-100 pb-2.5">1. Основная информация</h2>
+                            
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-600 mb-1">Название блюда</label>
+                                    <input type="text" value="${draftRecipe.title.replace(/"/g, '&quot;')}" oninput="draftRecipe.title = this.value" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-semibold focus:outline-none focus:border-ibu-navy">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-600 mb-1">Этап / Источник / Автор</label>
+                                    <input type="text" value="${draftRecipe.stage.replace(/"/g, '&quot;')}" oninput="draftRecipe.stage = this.value" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-ibu-navy">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-600 mb-1">Категория</label>
+                                    <select onchange="draftRecipe.category = this.value" class="w-full px-3 py-2.5 rounded-xl border border-slate-200 text-sm bg-white focus:outline-none focus:border-ibu-navy">
+                                        <option value="world_cup" ${draftRecipe.category === 'world_cup' ? 'selected' : ''}>Кубок мира</option>
+                                        <option value="championship" ${draftRecipe.category === 'championship' ? 'selected' : ''}>Чемпионат мира</option>
+                                        <option value="bonus" ${draftRecipe.category === 'bonus' ? 'selected' : ''}>Бонус от атлетов</option>
+                                        <option value="custom" ${draftRecipe.category === 'custom' ? 'selected' : ''}>Мой рецепт</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-600 mb-1">Флаг / Эмодзи</label>
+                                    <input type="text" value="${draftRecipe.countryFlag || '🏅'}" oninput="draftRecipe.countryFlag = this.value" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-center focus:outline-none focus:border-ibu-navy">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-600 mb-1">Время (мин)</label>
+                                    <input type="number" min="1" value="${draftRecipe.prepTime}" oninput="draftRecipe.prepTime = parseInt(this.value) || 0" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-mono focus:outline-none focus:border-ibu-navy">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-bold text-slate-600 mb-1">Базовых порций</label>
+                                    <input type="number" min="1" value="${draftRecipe.baseServings}" oninput="draftRecipe.baseServings = parseInt(this.value) || 1" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-mono focus:outline-none focus:border-ibu-navy">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Описание блюда</label>
+                                <textarea rows="2" oninput="draftRecipe.description = this.value" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-ibu-navy">${draftRecipe.description}</textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Совет нутрициолога / Заметка</label>
+                                <textarea rows="2" oninput="draftRecipe.tip = this.value" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-ibu-navy">${draftRecipe.tip || ''}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Блок 2: КБЖУ на 1 порцию -->
+                        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+                            <h2 class="text-base font-extrabold text-slate-900 border-b border-slate-100 pb-2.5">2. Калорийность и БЖУ (на 1 порцию)</h2>
+                            <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 font-mono">
+                                <div>
+                                    <label class="block text-xs font-sans font-bold text-slate-600 mb-1">Калории (ккал)</label>
+                                    <input type="number" step="0.5" value="${draftRecipe.nutritionPerServing.kcal}" oninput="draftRecipe.nutritionPerServing.kcal = parseFloat(this.value) || 0" class="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm font-bold focus:outline-none focus:border-ibu-navy">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-sans font-bold text-emerald-700 mb-1">Белки (г)</label>
+                                    <input type="number" step="0.1" value="${draftRecipe.nutritionPerServing.protein}" oninput="draftRecipe.nutritionPerServing.protein = parseFloat(this.value) || 0" class="w-full px-3.5 py-2.5 rounded-xl border border-emerald-200 bg-emerald-50/30 text-sm font-bold focus:outline-none focus:border-emerald-600">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-sans font-bold text-amber-700 mb-1">Жиры (г)</label>
+                                    <input type="number" step="0.1" value="${draftRecipe.nutritionPerServing.fat}" oninput="draftRecipe.nutritionPerServing.fat = parseFloat(this.value) || 0" class="w-full px-3.5 py-2.5 rounded-xl border border-amber-200 bg-amber-50/30 text-sm font-bold focus:outline-none focus:border-amber-600">
+                                </div>
+                                <div>
+                                    <label class="block text-xs font-sans font-bold text-sky-700 mb-1">Углеводы (г)</label>
+                                    <input type="number" step="0.1" value="${draftRecipe.nutritionPerServing.carbs}" oninput="draftRecipe.nutritionPerServing.carbs = parseFloat(this.value) || 0" class="w-full px-3.5 py-2.5 rounded-xl border border-sky-200 bg-sky-50/30 text-sm font-bold focus:outline-none focus:border-sky-600">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Блок 3: Редактор ингредиентов и граммовок -->
+                        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                                <div>
+                                    <h2 class="text-base font-extrabold text-slate-900">3. Ингредиенты и граммовки (на ${draftRecipe.baseServings} порц.)</h2>
+                                    <p class="text-xs text-slate-500">Указывайте числовое значение в графе «Кол-во», чтобы работал автопересчёт порций.</p>
+                                </div>
+                                <button onclick="addDraftIngredient()" class="px-3 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-xs font-bold transition-colors">
+                                    + Добавить ингредиент
+                                </button>
+                            </div>
+
+                            <div class="space-y-2.5">
+                                ${draftRecipe.ingredients.map((ing, idx) => `
+                                    <div class="grid grid-cols-12 gap-2 items-center bg-slate-50 p-2.5 rounded-2xl border border-slate-200/70">
+                                        <div class="col-span-12 sm:col-span-3">
+                                            <input type="text" placeholder="Подгруппа (напр. Тесто)" value="${(ing.group || '').replace(/"/g, '&quot;')}" oninput="draftRecipe.ingredients[${idx}].group = this.value" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs text-slate-600 focus:outline-none focus:border-ibu-navy">
+                                        </div>
+                                        <div class="col-span-4 sm:col-span-2">
+                                            <input type="number" step="any" placeholder="Кол-во" value="${ing.amount || ''}" oninput="draftRecipe.ingredients[${idx}].amount = parseFloat(this.value) || 0" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-mono font-bold text-ibu-navy focus:outline-none focus:border-ibu-navy">
+                                        </div>
+                                        <div class="col-span-4 sm:col-span-2">
+                                            <input type="text" placeholder="Ед. (г, мл, шт)" value="${(ing.unit || '').replace(/"/g, '&quot;')}" oninput="draftRecipe.ingredients[${idx}].unit = this.value" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs focus:outline-none focus:border-ibu-navy">
+                                        </div>
+                                        <div class="col-span-10 sm:col-span-4">
+                                            <input type="text" placeholder="Название продукта" value="${(ing.name || '').replace(/"/g, '&quot;')}" oninput="draftRecipe.ingredients[${idx}].name = this.value" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-xs font-medium focus:outline-none focus:border-ibu-navy">
+                                        </div>
+                                        <div class="col-span-2 sm:col-span-1 flex justify-end">
+                                            <button onclick="removeDraftIngredient(${idx})" class="p-1.5 text-rose-500 hover:bg-rose-100 rounded-lg transition-colors" title="Удалить строку">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                                            </button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Блок 4: Пошаговая инструкция -->
+                        <div class="bg-white rounded-3xl p-6 shadow-sm border border-slate-200 space-y-4">
+                            <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                                <h2 class="text-base font-extrabold text-slate-900">4. Шаги приготовления</h2>
+                                <button onclick="addDraftStep()" class="px-3 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-800 border border-sky-200 text-xs font-bold transition-colors">
+                                    + Добавить шаг
+                                </button>
+                            </div>
+
+                            <div class="space-y-3">
+                                ${draftRecipe.steps.map((step, idx) => `
+                                    <div class="flex items-start gap-2.5">
+                                        <span class="w-7 h-7 rounded-full bg-ibu-navy text-white font-mono text-xs font-bold flex items-center justify-center shrink-0 mt-1.5">${idx + 1}</span>
+                                        <textarea rows="2" oninput="draftRecipe.steps[${idx}] = this.value" class="flex-grow px-3.5 py-2 rounded-xl border border-slate-200 text-sm focus:outline-none focus:border-ibu-navy">${step}</textarea>
+                                        <button onclick="removeDraftStep(${idx})" class="p-2 text-rose-500 hover:bg-rose-50 rounded-xl mt-1 transition-colors" title="Удалить шаг">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        </button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+
+                        <!-- Нижние кнопки сохранения -->
+                        <div class="flex justify-end gap-3 pt-2 pb-6">
+                            <button onclick="cancelEditingRecipe()" class="px-5 py-3 rounded-xl bg-white border border-slate-200 text-slate-700 text-sm font-bold hover:bg-slate-50 transition-colors">
+                                Отмена
+                            </button>
+                            <button onclick="saveEditedRecipe()" class="px-6 py-3 rounded-xl bg-ibu-navy hover:bg-ibu-slate text-white text-sm font-extrabold shadow-md transition-colors">
+                                Сохранить рецепт в книгу
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function addDraftIngredient() {
+            const lastGroup = draftRecipe.ingredients.length > 0 ? draftRecipe.ingredients[draftRecipe.ingredients.length - 1].group : "Основные ингредиенты";
+            draftRecipe.ingredients.push({ group: lastGroup, amount: 100, unit: "г", name: "" });
+            renderRecipeEditor(draftRecipe);
+        }
+
+        function removeDraftIngredient(index) {
+            draftRecipe.ingredients.splice(index, 1);
+            renderRecipeEditor(draftRecipe);
+        }
+
+        function addDraftStep() {
+            draftRecipe.steps.push("");
+            renderRecipeEditor(draftRecipe);
+        }
+
+        function removeDraftStep(index) {
+            draftRecipe.steps.splice(index, 1);
+            renderRecipeEditor(draftRecipe);
+        }
+
+        function saveEditedRecipe() {
+            // Очищаем пустые шаги и ингредиенты без названия
+            draftRecipe.ingredients = draftRecipe.ingredients.filter(i => i.name && i.name.trim() !== '');
+            draftRecipe.steps = draftRecipe.steps.filter(s => s && s.trim() !== '');
+            if (!draftRecipe.title.trim()) draftRecipe.title = "Без названия";
+            if (draftRecipe.baseServings < 1) draftRecipe.baseServings = 1;
+
+            const idx = recipes.findIndex(r => r.id === draftRecipe.id);
+            if (idx !== -1) {
+                recipes[idx] = JSON.parse(JSON.stringify(draftRecipe));
+                saveRecipesToStorage();
+            }
+
+            state.currentServings = draftRecipe.baseServings;
+            draftRecipe = null;
+            state.isEditing = false;
+            renderRecipeDetail();
+            showToast("Рецепт успешно сохранён!");
+        }
+
+        // ============================================================================
+        // 8. ГЛАВНАЯ ФУНКЦИЯ РЕНДЕРИНГА И ИНИЦИАЛИЗАЦИЯ
+        // ============================================================================
+        function render() {
+            if (state.view === 'catalog') {
+                renderCatalog();
+            } else {
+                renderRecipeDetail();
+            }
+        }
+
+        // Запуск при загрузке страницы
+        window.addEventListener('DOMContentLoaded', () => {
+            loadRecipes();
+            render();
+        });
+    </script>
+</body>
+</html>
+```
